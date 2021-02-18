@@ -2,7 +2,7 @@
 	<div id="content" class="app-notestutorial">
 		<AppNavigation>
 			<AppNavigationNew v-if="!loading"
-				:text="t('notestutorial', 'New note')"
+				:text="t('notestutorial', 'New impoundment form')"
 				:disabled="false"
 				button-id="new-notestutorial-button"
 				button-class="icon-add"
@@ -10,40 +10,164 @@
 			<ul>
 				<AppNavigationItem v-for="note in notes"
 					:key="note.id"
-					:title="note.title ? note.title : t('notestutorial', 'New note')"
+					:title="note.formno ? note.formno : t('notestutorial', 'New impoundment form')"
 					:class="{active: currentNoteId === note.id}"
 					@click="openNote(note)">
 					<template slot="actions">
 						<ActionButton v-if="note.id === -1"
 							icon="icon-close"
 							@click="cancelNewNote(note)">
-							{{ t('notestutorial', 'Cancel note creation') }}
+							{{ t('notestutorial', 'Cancel impoundment form creation') }}
 						</ActionButton>
 						<ActionButton v-else
 							icon="icon-delete"
 							@click="deleteNote(note)">
-							{{ t('notestutorial', 'Delete note') }}
+							{{ t('notestutorial', 'Delete impoundment form') }}
 						</ActionButton>
 					</template>
 				</AppNavigationItem>
 			</ul>
 		</AppNavigation>
-		<AppContent>
-			<div v-if="currentNote">
-				<input ref="title"
-					v-model="currentNote.title"
-					type="text"
-					:disabled="updating">
-				<textarea ref="content" v-model="currentNote.content" :disabled="updating" />
-				<input type="button"
-					class="primary"
-					:value="t('notestutorial', 'Save')"
-					:disabled="updating || !savePossible"
-					@click="saveNote">
+		<AppContent
+			:allow-swipe-navigation="false">
+			<div v-if="currentNote" id="current-note">
+				<div>
+					<input type="button"
+						class="primary"
+						:value="t('notestutorial', 'Send')"
+						:disabled="true">
+					<input type="button"
+						class="primary"
+						:value="t('notestutorial', 'Preview')"
+						:disabled="true">
+					<input type="button"
+						class="primary"
+						:value="t('notestutorial', 'Check Recipients')"
+						:disabled="true">
+					<input v-if="currentNote.id === -1"
+						type="button"
+						class="primary"
+						:value="t('notestutorial', 'Cancel')"
+						:disabled="false"
+						@click="cancelNewNote(currentNote)">
+					<input v-else
+						type="button"
+						class="primary"
+						:value="t('notestutorial', 'Close')"
+						:disabled="false"
+						@click="closeCurrentNote()">
+					<input type="button"
+						class="primary"
+						:value="t('notestutorial', 'Save As Draft')"
+						:disabled="updating || !savePossible"
+						@click="saveNote">
+					<input type="button"
+						class="primary"
+						:value="t('notestutorial', 'Save As Template')"
+						:disabled="true">
+				</div>
+				<div class="form-group">
+					<div class="form-control">
+						<label for="to">To</label>
+						<select id="to"
+							v-model="currentNote.to"
+							class="form-control">
+							<option
+								v-for="(to, index) in tolist"
+								:key="index"
+								:value="to.name">
+								{{ to.label }}
+							</option>
+						</select>
+					</div>
+					<div>
+						<label for="formno">Prohibition # / VI #</label>
+						<input id="formno"
+							v-model="currentNote.formno"
+							type="text"
+							class="form-control">
+					</div>
+					<div>
+						<label for="agency">Agency</label>
+						<select id="agency"
+							v-model="currentNote.agency"
+							class="form-control">
+							<option
+								v-for="(agency, index) in agencylist"
+								:key="index"
+								:value="agency.name">
+								{{ agency.label }}
+							</option>
+						</select>
+					</div>
+					<div>
+						<label for="policeno">Police File #</label>
+						<input id="policeno"
+							v-model="currentNote.policeno"
+							type="text"
+							class="form-control">
+					</div>
+					<div>
+						<label for="policeemail">Police Email</label>
+						<input id="policeemail"
+							v-model="currentNote.policeemail"
+							type="text"
+							class="form-control">
+					</div>
+					<div>
+						<label for="packagetype">Type of package</label>
+						<select id="packagetype"
+							v-model="currentNote.packagetype"
+							class="form-control">
+							<option
+								v-for="(packagetype, index) in packagetypelist"
+								:key="index"
+								:value="packagetype.name">
+								{{ packagetype.label }}
+							</option>
+						</select>
+					</div>
+				</div>
+				<vue-dropzone :options="dropzoneOptions" />
+				<div>
+					<input type="button"
+						class="primary"
+						:value="t('notestutorial', 'Send')"
+						:disabled="true">
+					<input type="button"
+						class="primary"
+						:value="t('notestutorial', 'Preview')"
+						:disabled="true">
+					<input type="button"
+						class="primary"
+						:value="t('notestutorial', 'Check Recipients')"
+						:disabled="true">
+					<input v-if="currentNote.id === -1"
+						type="button"
+						class="primary"
+						:value="t('notestutorial', 'Cancel')"
+						:disabled="false"
+						@click="cancelNewNote(currentNote)">
+					<input v-else
+						type="button"
+						class="primary"
+						:value="t('notestutorial', 'Close')"
+						:disabled="false"
+						@click="closeCurrentNote()">
+					<input type="button"
+						class="primary"
+						:value="t('notestutorial', 'Save As Draft')"
+						:disabled="updating || !savePossible"
+						@click="saveNote">
+					<input type="button"
+						class="primary"
+						:value="t('notestutorial', 'Save As Template')"
+						:disabled="true">
+				</div>
 			</div>
 			<div v-else id="emptycontent">
 				<div class="icon-file" />
-				<h2>{{ t('notestutorial', 'Create a note to get started') }}</h2>
+				<h2>{{ t('notestutorial', 'Create a new impountment form to get started') }}</h2>
 			</div>
 		</AppContent>
 	</div>
@@ -60,6 +184,8 @@ import '@nextcloud/dialogs/styles/toast.scss'
 import { generateUrl } from '@nextcloud/router'
 import { showError, showSuccess } from '@nextcloud/dialogs'
 import axios from '@nextcloud/axios'
+import vue2Dropzone from 'vue2-dropzone' // https://rowanwins.github.io/vue-dropzone/docs/dist/#/iconDemo
+import 'vue2-dropzone/dist/vue2Dropzone.min.css'
 
 export default {
 	name: 'App',
@@ -69,6 +195,7 @@ export default {
 		AppNavigation,
 		AppNavigationItem,
 		AppNavigationNew,
+		vueDropzone: vue2Dropzone,
 	},
 	data() {
 		return {
@@ -76,6 +203,46 @@ export default {
 			currentNoteId: null,
 			updating: false,
 			loading: true,
+			dropzoneOptions: {
+				url: '/post',
+				thumbnailWidth: 100,
+				addRemoveLinks: true,
+				dictDefaultMessage: "<i class='fa-file-upload' /> Drop files to upload or use <strong><u>Upload Files</u></strong> dialog.",
+			},
+			tolist: [
+				{
+					name: 'dps',
+					label: 'DPS',
+				},
+			],
+			agencylist: [
+				{
+					name: 'vicpd',
+					label: 'Vic PD',
+				},
+				{
+					name: 'saanichpd',
+					label: 'SannichPD',
+				},
+				{
+					name: 'irsu',
+					label: 'IRSU',
+				},
+			],
+			packagetypelist: [
+				{
+					name: 'adp',
+					label: 'ADP',
+				},
+				{
+					name: 'irp',
+					label: 'IRP',
+				},
+				{
+					name: 'vi',
+					label: 'VI',
+				},
+			],
 		}
 	},
 	computed: {
@@ -91,11 +258,11 @@ export default {
 		},
 
 		/**
-		 * Returns true if a note is selected and its title is not empty
+		 * Returns true if a note is selected and its formno is not empty
 		 * @returns {Boolean}
 		 */
 		savePossible() {
-			return this.currentNote && this.currentNote.title !== ''
+			return this.currentNote && this.currentNote.formno !== ''
 		},
 	},
 	/**
@@ -107,7 +274,7 @@ export default {
 			this.notes = response.data
 		} catch (e) {
 			console.error(e)
-			showError(t('notestutorial', 'Could not fetch notes'))
+			showError(t('notestutorial', 'Could not fetch impoundment forms'))
 		}
 		this.loading = false
 	},
@@ -148,10 +315,16 @@ export default {
 				this.notes.push({
 					id: -1,
 					title: '',
+					formno: '',
 					content: '',
+					to: 'dps',
+					agency: 'saanichpd',
+					policeno: '',
+					policeemail: '',
+					packagetype: 'vi',
 				})
 				this.$nextTick(() => {
-					this.$refs.title.focus()
+					this.$refs.formno.focus()
 				})
 			}
 		},
@@ -175,7 +348,7 @@ export default {
 				this.currentNoteId = response.data.id
 			} catch (e) {
 				console.error(e)
-				showError(t('notestutorial', 'Could not create the note'))
+				showError(t('notestutorial', 'Could not create the impoundment form'))
 			}
 			this.updating = false
 		},
@@ -189,7 +362,7 @@ export default {
 				await axios.put(generateUrl(`/apps/notestutorial/notes/${note.id}`), note)
 			} catch (e) {
 				console.error(e)
-				showError(t('notestutorial', 'Could not update the note'))
+				showError(t('notestutorial', 'Could not update the impoundment form'))
 			}
 			this.updating = false
 		},
@@ -204,23 +377,36 @@ export default {
 				if (this.currentNoteId === note.id) {
 					this.currentNoteId = null
 				}
-				showSuccess(t('notestutorial', 'Note deleted'))
+				showSuccess(t('notestutorial', 'Impoundment form deleted'))
 			} catch (e) {
 				console.error(e)
-				showError(t('notestutorial', 'Could not delete the note'))
+				showError(t('notestutorial', 'Could not delete the impoundment form'))
 			}
+		},
+		/**
+		 * Close current note
+		 */
+		async closeCurrentNote() {
+			this.currentNoteId = null
 		},
 	},
 }
 </script>
 <style scoped>
+	@import url('https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css');
+
 	#app-content > div {
+		margin-top: 3rem;
 		width: 100%;
 		height: 100%;
 		padding: 20px;
 		display: flex;
 		flex-direction: column;
 		flex-grow: 1;
+	}
+
+	#current-note {
+		margin-top: 3rem;
 	}
 
 	input[type='text'] {

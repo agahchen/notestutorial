@@ -44,18 +44,21 @@ class NoteController extends Controller {
 	/**
 	 * @NoAdminRequired
 	 */
-	public function create(string $title, string $content): DataResponse {
+	public function create(string $title, string $content,
+		string $to, string $formno, string $agency, string $policeno, string $policeemail, string $packagetype): DataResponse {
 		return new DataResponse($this->service->create($title, $content,
-			$this->userId));
+			$this->userId,
+			$to, $formno, $agency, $policeno, $policeemail, $packagetype));
 	}
 
 	/**
 	 * @NoAdminRequired
 	 */
-	public function update(int $id, string $title,
-						   string $content): DataResponse {
-		return $this->handleNotFound(function () use ($id, $title, $content) {
-			return $this->service->update($id, $title, $content, $this->userId);
+	public function update(int $id, string $title, string $content,
+		string $to, string $formno, string $agency, string $policeno, string $policeemail, string $packagetype): DataResponse {
+		return $this->handleNotFound(function () use ($id, $title, $content, $to, $formno, $agency, $policeno, $policeemail, $packagetype) {
+			return $this->service->update($id, $title, $content, $this->userId,
+				$to, $formno, $agency, $policeno, $policeemail, $packagetype);
 		});
 	}
 

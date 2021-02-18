@@ -45,11 +45,17 @@ class NoteService {
 		}
 	}
 
-	public function create($title, $content, $userId) {
+	public function create($title, $content, $userId, $to, $formno, $agency, $policeno, $policeemail, $packagetype) {
 		$note = new Note();
 		$note->setTitle($title);
 		$note->setContent($content);
 		$note->setUserId($userId);
+		$note->setTo($to);
+		$note->setFormno($formno);
+		$note->setAgency($agency);
+		$note->setPoliceno($policeno);
+		$note->setPoliceemail($policeemail);
+		$note->setPackagetype($packagetype);
 		return $this->mapper->insert($note);
 	}
 
@@ -58,6 +64,12 @@ class NoteService {
 			$note = $this->mapper->find($id, $userId);
 			$note->setTitle($title);
 			$note->setContent($content);
+			$note->setTo($to);
+			$note->setFormno($formno);
+			$note->setAgency($agency);
+			$note->setPoliceno($policeno);
+			$note->setPoliceemail($policeemail);
+			$note->setPackagetype($packagetype);
 			return $this->mapper->update($note);
 		} catch (Exception $e) {
 			$this->handleException($e);
