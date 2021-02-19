@@ -127,6 +127,12 @@
 							</option>
 						</select>
 					</div>
+					<div>
+						<label for="formjson">Note</label>
+						<textarea id="formjson"
+							class="form-control"
+							:value="JSON.stringify(currentNote)" />
+					</div>
 				</div>
 				<vue-dropzone :options="dropzoneOptions" />
 				<div>

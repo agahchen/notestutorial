@@ -27,7 +27,7 @@ class Note extends Entity implements JsonSerializable {
 			'agency' => $this->agency,
 			'policeno' => $this->policeno,
 			'policeemail' => $this->policeemail,
-			'pacakgetype' => $this->packagetype
+			'packagetype' => $this->packagetype
 		];
 	}
 }

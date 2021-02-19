@@ -15848,6 +15848,12 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 //
 //
 //
+//
+//
+//
+//
+//
+//
 
 
 
@@ -37230,6 +37236,18 @@ var render = function() {
                       }),
                       0
                     )
+                  ]),
+                  _vm._v(" "),
+                  _c("div", [
+                    _c("label", { attrs: { for: "formjson" } }, [
+                      _vm._v("Note")
+                    ]),
+                    _vm._v(" "),
+                    _c("textarea", {
+                      staticClass: "form-control",
+                      attrs: { id: "formjson" },
+                      domProps: { value: JSON.stringify(_vm.currentNote) }
+                    })
                   ])
                 ]),
                 _vm._v(" "),
@@ -46144,4 +46162,4 @@ vue__WEBPACK_IMPORTED_MODULE_0__["default"].mixin({
 /***/ })
 
 /******/ });
-//# sourceMappingURL=notestutorial-main.js.map?v=9331254dc20d2f92e59e
+//# sourceMappingURL=notestutorial-main.js.map?v=94140b843241ab64a9f3
