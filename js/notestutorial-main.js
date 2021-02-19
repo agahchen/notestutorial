@@ -37240,7 +37240,7 @@ var render = function() {
                   _vm._v(" "),
                   _c("div", [
                     _c("label", { attrs: { for: "formjson" } }, [
-                      _vm._v("Note")
+                      _vm._v("Debugging window")
                     ]),
                     _vm._v(" "),
                     _c("textarea", {
@@ -46162,4 +46162,4 @@ vue__WEBPACK_IMPORTED_MODULE_0__["default"].mixin({
 /***/ })
 
 /******/ });
-//# sourceMappingURL=notestutorial-main.js.map?v=94140b843241ab64a9f3
+//# sourceMappingURL=notestutorial-main.js.map?v=bc5984419c8eb19156c7

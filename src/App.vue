@@ -128,7 +128,7 @@
 						</select>
 					</div>
 					<div>
-						<label for="formjson">Note</label>
+						<label for="formjson">Debugging window</label>
 						<textarea id="formjson"
 							class="form-control"
 							:value="JSON.stringify(currentNote)" />

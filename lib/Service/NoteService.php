@@ -59,7 +59,7 @@ class NoteService {
 		return $this->mapper->insert($note);
 	}
 
-	public function update($id, $title, $content, $userId) {
+	public function update($id, $title, $content, $userId, $to, $formno, $agency, $policeno, $policeemail, $packagetype) {
 		try {
 			$note = $this->mapper->find($id, $userId);
 			$note->setTitle($title);
