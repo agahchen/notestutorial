@@ -13,15 +13,17 @@ Project starts 2021-02-05
 [Setup NC] starts at 2021-02-05
 [Setup NC] ends at 2021-02-10
 [Setup NC] -> [Build Form v1]
-[Build Form v1] lasts 10 days
+[Build Form v1] ends at 2021-02-19
 note bottom
 'note left
 Form v1 function
-- CRUD impoundment form (without file upload)
+- (done) CRUD impoundment form
+    - no file upload
+    - no form validation
 - Save form to NextCloud folder
 end note
 [Build Form v1] is colored in Yellow/GoldenRod
-[Build Form v1] is 70% completed
+[Build Form v1] is 80% completed
 [Build Form v1] -> [Setup Keycloak_NC]
 [Setup Keycloak_NC] lasts 2 days
 [Setup Keycloak_NC] is 50% completed
