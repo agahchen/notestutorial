@@ -2,7 +2,7 @@
 	<div id="content" class="app-notestutorial">
 		<AppNavigation>
 			<AppNavigationNew v-if="!loading"
-				:text="t('notestutorial', 'New impoundment form')"
+				:text="t('notestutorial', 'New impoundment folder')"
 				:disabled="false"
 				button-id="new-notestutorial-button"
 				button-class="icon-add"
@@ -10,19 +10,19 @@
 			<ul>
 				<AppNavigationItem v-for="note in notes"
 					:key="note.id"
-					:title="note.formno ? note.formno : t('notestutorial', 'New impoundment form')"
+					:title="note.formno ? note.formno : t('notestutorial', 'New impoundment folder')"
 					:class="{active: currentNoteId === note.id}"
 					@click="openNote(note)">
 					<template slot="actions">
 						<ActionButton v-if="note.id === -1"
 							icon="icon-close"
 							@click="cancelNewNote(note)">
-							{{ t('notestutorial', 'Cancel impoundment form creation') }}
+							{{ t('notestutorial', 'Cancel impoundment folder creation') }}
 						</ActionButton>
 						<ActionButton v-else
 							icon="icon-delete"
 							@click="deleteNote(note)">
-							{{ t('notestutorial', 'Delete impoundment form') }}
+							{{ t('notestutorial', 'Delete impoundment folder') }}
 						</ActionButton>
 					</template>
 				</AppNavigationItem>
@@ -134,7 +134,9 @@
 							:value="JSON.stringify(currentNote)" />
 					</div>
 				</div>
-				<vue-dropzone :options="dropzoneOptions" />
+				<vue-dropzone
+					:disabled="savePossible"
+					:options="dropzoneOptions" />
 				<div>
 					<input type="button"
 						class="primary"
@@ -173,7 +175,7 @@
 			</div>
 			<div v-else id="emptycontent">
 				<div class="icon-file" />
-				<h2>{{ t('notestutorial', 'Create a new impountment form to get started') }}</h2>
+				<h2>{{ t('notestutorial', 'Create a new impountment folder') }}</h2>
 			</div>
 		</AppContent>
 	</div>
@@ -217,8 +219,8 @@ export default {
 			},
 			tolist: [
 				{
-					name: 'dps',
-					label: 'DPS',
+					name: 'rsbc',
+					label: 'RSBC',
 				},
 			],
 			agencylist: [
@@ -323,8 +325,8 @@ export default {
 					title: '',
 					formno: '',
 					content: '',
-					to: 'dps',
-					agency: 'saanichpd',
+					to: 'rsbc',
+					agency: '',
 					policeno: '',
 					policeemail: '',
 					packagetype: 'vi',
@@ -386,7 +388,7 @@ export default {
 				showSuccess(t('notestutorial', 'Impoundment form deleted'))
 			} catch (e) {
 				console.error(e)
-				showError(t('notestutorial', 'Could not delete the impoundment form'))
+				showError(t('notestutorial', 'Could not delete the impoundment folder'))
 			}
 		},
 		/**

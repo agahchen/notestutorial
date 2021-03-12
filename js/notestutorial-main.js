@@ -15854,6 +15854,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 //
 //
 //
+//
+//
 
 
 
@@ -15889,8 +15891,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         dictDefaultMessage: "<i class='fa-file-upload' /> Drop files to upload or use <strong><u>Upload Files</u></strong> dialog."
       },
       tolist: [{
-        name: 'dps',
-        label: 'DPS'
+        name: 'rsbc',
+        label: 'RSBC'
       }],
       agencylist: [{
         name: 'vicpd',
@@ -16024,8 +16026,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           title: '',
           formno: '',
           content: '',
-          to: 'dps',
-          agency: 'saanichpd',
+          to: 'rsbc',
+          agency: '',
           policeno: '',
           policeemail: '',
           packagetype: 'vi'
@@ -16164,7 +16166,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                 _context4.prev = 8;
                 _context4.t0 = _context4["catch"](0);
                 console.error(_context4.t0);
-                Object(_nextcloud_dialogs__WEBPACK_IMPORTED_MODULE_7__["showError"])(t('notestutorial', 'Could not delete the impoundment form'));
+                Object(_nextcloud_dialogs__WEBPACK_IMPORTED_MODULE_7__["showError"])(t('notestutorial', 'Could not delete the impoundment folder'));
 
               case 12:
               case "end":
@@ -36803,7 +36805,7 @@ var render = function() {
           !_vm.loading
             ? _c("AppNavigationNew", {
                 attrs: {
-                  text: _vm.t("notestutorial", "New impoundment form"),
+                  text: _vm.t("notestutorial", "New impoundment folder"),
                   disabled: false,
                   "button-id": "new-notestutorial-button",
                   "button-class": "icon-add"
@@ -36823,7 +36825,7 @@ var render = function() {
                   attrs: {
                     title: note.formno
                       ? note.formno
-                      : _vm.t("notestutorial", "New impoundment form")
+                      : _vm.t("notestutorial", "New impoundment folder")
                   },
                   on: {
                     click: function($event) {
@@ -36853,7 +36855,7 @@ var render = function() {
                                   _vm._s(
                                     _vm.t(
                                       "notestutorial",
-                                      "Cancel impoundment form creation"
+                                      "Cancel impoundment folder creation"
                                     )
                                   ) +
                                   "\n\t\t\t\t\t"
@@ -36876,7 +36878,7 @@ var render = function() {
                                   _vm._s(
                                     _vm.t(
                                       "notestutorial",
-                                      "Delete impoundment form"
+                                      "Delete impoundment folder"
                                     )
                                   ) +
                                   "\n\t\t\t\t\t"
@@ -37251,7 +37253,12 @@ var render = function() {
                   ])
                 ]),
                 _vm._v(" "),
-                _c("vue-dropzone", { attrs: { options: _vm.dropzoneOptions } }),
+                _c("vue-dropzone", {
+                  attrs: {
+                    disabled: _vm.savePossible,
+                    options: _vm.dropzoneOptions
+                  }
+                }),
                 _vm._v(" "),
                 _c("div", [
                   _c("input", {
@@ -37337,10 +37344,7 @@ var render = function() {
               _c("h2", [
                 _vm._v(
                   _vm._s(
-                    _vm.t(
-                      "notestutorial",
-                      "Create a new impountment form to get started"
-                    )
+                    _vm.t("notestutorial", "Create a new impountment folder")
                   )
                 )
               ])
@@ -46162,4 +46166,4 @@ vue__WEBPACK_IMPORTED_MODULE_0__["default"].mixin({
 /***/ })
 
 /******/ });
-//# sourceMappingURL=notestutorial-main.js.map?v=bc5984419c8eb19156c7
+//# sourceMappingURL=notestutorial-main.js.map?v=95dcd63213c9726c2f85
