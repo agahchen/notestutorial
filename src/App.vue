@@ -8,24 +8,28 @@
 				button-class="icon-add"
 				@click="newNote" />
 			<ul>
-				<AppNavigationItem v-for="note in notes"
-					:key="note.id"
-					:title="note.formno ? note.formno : t('notestutorial', 'New impoundment folder')"
-					:class="{active: currentNoteId === note.id}"
-					@click="openNote(note)">
-					<template slot="actions">
-						<ActionButton v-if="note.id === -1"
-							icon="icon-close"
-							@click="cancelNewNote(note)">
-							{{ t('notestutorial', 'Cancel impoundment folder creation') }}
-						</ActionButton>
-						<ActionButton v-else
-							icon="icon-delete"
-							@click="deleteNote(note)">
-							{{ t('notestutorial', 'Delete impoundment folder') }}
-						</ActionButton>
-					</template>
-				</AppNavigationItem>
+				<strong><AppNavigationItem v-if="notes.length > 0" :key="-999" :title="'Draft'" /></strong>
+				<p style="margin-left:2.5em">
+					<AppNavigationItem v-for="note in notes"
+						:key="note.id"
+						:title="note.formno ? note.formno : t('notestutorial', 'New impoundment folder')"
+						:class="{active: currentNoteId === note.id}"
+						@click="openNote(note)">
+						<template slot="actions">
+							<ActionButton v-if="note.id === -1"
+								icon="icon-close"
+								@click="cancelNewNote(note)">
+								{{ t('notestutorial', 'Cancel impoundment folder creation') }}
+							</ActionButton>
+							<ActionButton v-else
+								icon="icon-delete"
+								@click="deleteNote(note)">
+								{{ t('notestutorial', 'Delete impoundment folder') }}
+							</ActionButton>
+						</template>
+					</AppNavigationItem>
+				</p>
+				<strong><AppNavigationItem v-if="notes.length > 0" :key="999" :title="'Ready'" /></strong>
 			</ul>
 		</AppNavigation>
 		<AppContent
@@ -34,15 +38,11 @@
 				<div>
 					<input type="button"
 						class="primary"
-						:value="t('notestutorial', 'Send')"
+						:value="t('notestutorial', 'Move to Ready')"
 						:disabled="true">
 					<input type="button"
 						class="primary"
 						:value="t('notestutorial', 'Preview')"
-						:disabled="true">
-					<input type="button"
-						class="primary"
-						:value="t('notestutorial', 'Check Recipients')"
 						:disabled="true">
 					<input v-if="currentNote.id === -1"
 						type="button"
@@ -58,16 +58,12 @@
 						@click="closeCurrentNote()">
 					<input type="button"
 						class="primary"
-						:value="t('notestutorial', 'Save As Draft')"
+						:value="currentNote.id === -1 ? t('notestutorial', 'Save As Draft') : 'Save'"
 						:disabled="updating || !savePossible"
 						@click="saveNote">
-					<input type="button"
-						class="primary"
-						:value="t('notestutorial', 'Save As Template')"
-						:disabled="true">
 				</div>
 				<div class="form-group">
-					<div class="form-control">
+					<!--div class="form-control">
 						<label for="to">To</label>
 						<select id="to"
 							v-model="currentNote.to"
@@ -79,7 +75,7 @@
 								{{ to.label }}
 							</option>
 						</select>
-					</div>
+					</div-->
 					<div>
 						<label for="formno">Prohibition # / VI #</label>
 						<input id="formno"
@@ -87,7 +83,7 @@
 							type="text"
 							class="form-control">
 					</div>
-					<div>
+					<!--div>
 						<label for="agency">Agency</label>
 						<select id="agency"
 							v-model="currentNote.agency"
@@ -99,15 +95,15 @@
 								{{ agency.label }}
 							</option>
 						</select>
-					</div>
+					</div-->
 					<div>
-						<label for="policeno">Police File #</label>
+						<label for="policeno">Total number of pages</label>
 						<input id="policeno"
 							v-model="currentNote.policeno"
 							type="text"
 							class="form-control">
 					</div>
-					<div>
+					<!--div>
 						<label for="policeemail">Police Email</label>
 						<input id="policeemail"
 							v-model="currentNote.policeemail"
@@ -132,7 +128,7 @@
 						<textarea id="formjson"
 							class="form-control"
 							:value="JSON.stringify(currentNote)" />
-					</div>
+					</div-->
 				</div>
 				<vue-dropzone
 					:disabled="savePossible"
@@ -140,15 +136,11 @@
 				<div>
 					<input type="button"
 						class="primary"
-						:value="t('notestutorial', 'Send')"
+						:value="t('notestutorial', 'Move to Ready')"
 						:disabled="true">
 					<input type="button"
 						class="primary"
 						:value="t('notestutorial', 'Preview')"
-						:disabled="true">
-					<input type="button"
-						class="primary"
-						:value="t('notestutorial', 'Check Recipients')"
 						:disabled="true">
 					<input v-if="currentNote.id === -1"
 						type="button"
@@ -164,13 +156,9 @@
 						@click="closeCurrentNote()">
 					<input type="button"
 						class="primary"
-						:value="t('notestutorial', 'Save As Draft')"
+						:value="currentNote.id === -1 ? t('notestutorial', 'Save As Draft') : 'Save'"
 						:disabled="updating || !savePossible"
 						@click="saveNote">
-					<input type="button"
-						class="primary"
-						:value="t('notestutorial', 'Save As Template')"
-						:disabled="true">
 				</div>
 			</div>
 			<div v-else id="emptycontent">

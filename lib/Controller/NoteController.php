@@ -75,23 +75,23 @@ class NoteController extends Controller {
 
 		try {
 			try {
-				$folderPath = '/rsftpoc/' . $formno;
+				$folderPath = '/VicPD Draft/' . $formno;
 				if ($userFolder->nodeExists($folderPath) === FALSE) {
 					$folder = $userFolder->newFolder($folderPath);
 				} else {
 					$folder = $userFolder->get($folderPath);
 				}
 
-				if ($folder->nodeExists('myfile.txt') === FALSE) {
-					$file = $folder->newFile('myfile.txt');
+				if ($folder->nodeExists('metadata.txt') === FALSE) {
+					$file = $folder->newFile('metadata.txt');
 				} else {
-					$file = $folder->newFile('myfile2.txt');
+					$file = $folder->newFile('metadata2.txt');
 				}
 			} catch (\OCP\Files\NotFoundException $e) {
 			}
 
 			// the id can be accessed by $file->getId();
-			$file->putContent($formno . ', ' . $policeemail);
+			$file->putContent('pages: ' . $policeno);
 		} catch(\OCP\Files\NotPermittedException $e) {
 			// you have to create this exception by yourself
 		}

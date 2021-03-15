@@ -15844,18 +15844,6 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 //
 //
 //
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
 
 
 
@@ -16027,7 +16015,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           formno: '',
           content: '',
           to: 'rsbc',
-          agency: '',
+          agency: 'vicpd',
           policeno: '',
           policeemail: '',
           packagetype: 'vi'
@@ -36814,86 +36802,115 @@ var render = function() {
               })
             : _vm._e(),
           _vm._v(" "),
-          _c(
-            "ul",
-            _vm._l(_vm.notes, function(note) {
-              return _c(
-                "AppNavigationItem",
-                {
-                  key: note.id,
-                  class: { active: _vm.currentNoteId === note.id },
-                  attrs: {
-                    title: note.formno
-                      ? note.formno
-                      : _vm.t("notestutorial", "New impoundment folder")
-                  },
-                  on: {
-                    click: function($event) {
-                      return _vm.openNote(note)
+          _c("ul", [
+            _c(
+              "strong",
+              [
+                _vm.notes.length > 0
+                  ? _c("AppNavigationItem", {
+                      key: -999,
+                      attrs: { title: "Draft" }
+                    })
+                  : _vm._e()
+              ],
+              1
+            ),
+            _vm._v(" "),
+            _c(
+              "p",
+              { staticStyle: { "margin-left": "2.5em" } },
+              _vm._l(_vm.notes, function(note) {
+                return _c(
+                  "AppNavigationItem",
+                  {
+                    key: note.id,
+                    class: { active: _vm.currentNoteId === note.id },
+                    attrs: {
+                      title: note.formno
+                        ? note.formno
+                        : _vm.t("notestutorial", "New impoundment folder")
+                    },
+                    on: {
+                      click: function($event) {
+                        return _vm.openNote(note)
+                      }
                     }
-                  }
-                },
-                [
-                  _c(
-                    "template",
-                    { slot: "actions" },
-                    [
-                      note.id === -1
-                        ? _c(
-                            "ActionButton",
-                            {
-                              attrs: { icon: "icon-close" },
-                              on: {
-                                click: function($event) {
-                                  return _vm.cancelNewNote(note)
+                  },
+                  [
+                    _c(
+                      "template",
+                      { slot: "actions" },
+                      [
+                        note.id === -1
+                          ? _c(
+                              "ActionButton",
+                              {
+                                attrs: { icon: "icon-close" },
+                                on: {
+                                  click: function($event) {
+                                    return _vm.cancelNewNote(note)
+                                  }
                                 }
-                              }
-                            },
-                            [
-                              _vm._v(
-                                "\n\t\t\t\t\t\t" +
-                                  _vm._s(
-                                    _vm.t(
-                                      "notestutorial",
-                                      "Cancel impoundment folder creation"
-                                    )
-                                  ) +
-                                  "\n\t\t\t\t\t"
-                              )
-                            ]
-                          )
-                        : _c(
-                            "ActionButton",
-                            {
-                              attrs: { icon: "icon-delete" },
-                              on: {
-                                click: function($event) {
-                                  return _vm.deleteNote(note)
+                              },
+                              [
+                                _vm._v(
+                                  "\n\t\t\t\t\t\t\t" +
+                                    _vm._s(
+                                      _vm.t(
+                                        "notestutorial",
+                                        "Cancel impoundment folder creation"
+                                      )
+                                    ) +
+                                    "\n\t\t\t\t\t\t"
+                                )
+                              ]
+                            )
+                          : _c(
+                              "ActionButton",
+                              {
+                                attrs: { icon: "icon-delete" },
+                                on: {
+                                  click: function($event) {
+                                    return _vm.deleteNote(note)
+                                  }
                                 }
-                              }
-                            },
-                            [
-                              _vm._v(
-                                "\n\t\t\t\t\t\t" +
-                                  _vm._s(
-                                    _vm.t(
-                                      "notestutorial",
-                                      "Delete impoundment folder"
-                                    )
-                                  ) +
-                                  "\n\t\t\t\t\t"
-                              )
-                            ]
-                          )
-                    ],
-                    1
-                  )
-                ],
-                2
-              )
-            }),
-            1
-          )
+                              },
+                              [
+                                _vm._v(
+                                  "\n\t\t\t\t\t\t\t" +
+                                    _vm._s(
+                                      _vm.t(
+                                        "notestutorial",
+                                        "Delete impoundment folder"
+                                      )
+                                    ) +
+                                    "\n\t\t\t\t\t\t"
+                                )
+                              ]
+                            )
+                      ],
+                      1
+                    )
+                  ],
+                  2
+                )
+              }),
+              1
+            ),
+            _vm._v(" "),
+            _c(
+              "strong",
+              [
+                _vm.notes.length > 0
+                  ? _c("AppNavigationItem", {
+                      key: 999,
+                      attrs: { title: "Ready" }
+                    })
+                  : _vm._e()
+              ],
+              1
+            )
+          ])
         ],
         1
       ),
@@ -36909,7 +36926,7 @@ var render = function() {
                     staticClass: "primary",
                     attrs: {
                       type: "button",
-                      value: _vm.t("notestutorial", "Send"),
+                      value: _vm.t("notestutorial", "Move to Ready"),
                       disabled: true
                     }
                   }),
@@ -36919,15 +36936,6 @@ var render = function() {
                     attrs: {
                       type: "button",
                       value: _vm.t("notestutorial", "Preview"),
-                      disabled: true
-                    }
-                  }),
-                  _vm._v(" "),
-                  _c("input", {
-                    staticClass: "primary",
-                    attrs: {
-                      type: "button",
-                      value: _vm.t("notestutorial", "Check Recipients"),
                       disabled: true
                     }
                   }),
@@ -36964,76 +36972,17 @@ var render = function() {
                     staticClass: "primary",
                     attrs: {
                       type: "button",
-                      value: _vm.t("notestutorial", "Save As Draft"),
+                      value:
+                        _vm.currentNote.id === -1
+                          ? _vm.t("notestutorial", "Save As Draft")
+                          : "Save",
                       disabled: _vm.updating || !_vm.savePossible
                     },
                     on: { click: _vm.saveNote }
-                  }),
-                  _vm._v(" "),
-                  _c("input", {
-                    staticClass: "primary",
-                    attrs: {
-                      type: "button",
-                      value: _vm.t("notestutorial", "Save As Template"),
-                      disabled: true
-                    }
                   })
                 ]),
                 _vm._v(" "),
                 _c("div", { staticClass: "form-group" }, [
-                  _c("div", { staticClass: "form-control" }, [
-                    _c("label", { attrs: { for: "to" } }, [_vm._v("To")]),
-                    _vm._v(" "),
-                    _c(
-                      "select",
-                      {
-                        directives: [
-                          {
-                            name: "model",
-                            rawName: "v-model",
-                            value: _vm.currentNote.to,
-                            expression: "currentNote.to"
-                          }
-                        ],
-                        staticClass: "form-control",
-                        attrs: { id: "to" },
-                        on: {
-                          change: function($event) {
-                            var $$selectedVal = Array.prototype.filter
-                              .call($event.target.options, function(o) {
-                                return o.selected
-                              })
-                              .map(function(o) {
-                                var val = "_value" in o ? o._value : o.value
-                                return val
-                              })
-                            _vm.$set(
-                              _vm.currentNote,
-                              "to",
-                              $event.target.multiple
-                                ? $$selectedVal
-                                : $$selectedVal[0]
-                            )
-                          }
-                        }
-                      },
-                      _vm._l(_vm.tolist, function(to, index) {
-                        return _c(
-                          "option",
-                          { key: index, domProps: { value: to.name } },
-                          [
-                            _vm._v(
-                              "\n\t\t\t\t\t\t\t" +
-                                _vm._s(to.label) +
-                                "\n\t\t\t\t\t\t"
-                            )
-                          ]
-                        )
-                      }),
-                      0
-                    )
-                  ]),
-                  _vm._v(" "),
                   _c("div", [
                     _c("label", { attrs: { for: "formno" } }, [
                       _vm._v("Prohibition # / VI #")
@@ -37067,63 +37016,8 @@ var render = function() {
                   ]),
                   _vm._v(" "),
                   _c("div", [
-                    _c("label", { attrs: { for: "agency" } }, [
-                      _vm._v("Agency")
-                    ]),
-                    _vm._v(" "),
-                    _c(
-                      "select",
-                      {
-                        directives: [
-                          {
-                            name: "model",
-                            rawName: "v-model",
-                            value: _vm.currentNote.agency,
-                            expression: "currentNote.agency"
-                          }
-                        ],
-                        staticClass: "form-control",
-                        attrs: { id: "agency" },
-                        on: {
-                          change: function($event) {
-                            var $$selectedVal = Array.prototype.filter
-                              .call($event.target.options, function(o) {
-                                return o.selected
-                              })
-                              .map(function(o) {
-                                var val = "_value" in o ? o._value : o.value
-                                return val
-                              })
-                            _vm.$set(
-                              _vm.currentNote,
-                              "agency",
-                              $event.target.multiple
-                                ? $$selectedVal
-                                : $$selectedVal[0]
-                            )
-                          }
-                        }
-                      },
-                      _vm._l(_vm.agencylist, function(agency, index) {
-                        return _c(
-                          "option",
-                          { key: index, domProps: { value: agency.name } },
-                          [
-                            _vm._v(
-                              "\n\t\t\t\t\t\t\t" +
-                                _vm._s(agency.label) +
-                                "\n\t\t\t\t\t\t"
-                            )
-                          ]
-                        )
-                      }),
-                      0
-                    )
-                  ]),
-                  _vm._v(" "),
-                  _c("div", [
                     _c("label", { attrs: { for: "policeno" } }, [
-                      _vm._v("Police File #")
+                      _vm._v("Total number of pages")
                     ]),
                     _vm._v(" "),
                     _c("input", {
@@ -37151,105 +37045,6 @@ var render = function() {
                         }
                       }
                     })
-                  ]),
-                  _vm._v(" "),
-                  _c("div", [
-                    _c("label", { attrs: { for: "policeemail" } }, [
-                      _vm._v("Police Email")
-                    ]),
-                    _vm._v(" "),
-                    _c("input", {
-                      directives: [
-                        {
-                          name: "model",
-                          rawName: "v-model",
-                          value: _vm.currentNote.policeemail,
-                          expression: "currentNote.policeemail"
-                        }
-                      ],
-                      staticClass: "form-control",
-                      attrs: { id: "policeemail", type: "text" },
-                      domProps: { value: _vm.currentNote.policeemail },
-                      on: {
-                        input: function($event) {
-                          if ($event.target.composing) {
-                            return
-                          }
-                          _vm.$set(
-                            _vm.currentNote,
-                            "policeemail",
-                            $event.target.value
-                          )
-                        }
-                      }
-                    })
-                  ]),
-                  _vm._v(" "),
-                  _c("div", [
-                    _c("label", { attrs: { for: "packagetype" } }, [
-                      _vm._v("Type of package")
-                    ]),
-                    _vm._v(" "),
-                    _c(
-                      "select",
-                      {
-                        directives: [
-                          {
-                            name: "model",
-                            rawName: "v-model",
-                            value: _vm.currentNote.packagetype,
-                            expression: "currentNote.packagetype"
-                          }
-                        ],
-                        staticClass: "form-control",
-                        attrs: { id: "packagetype" },
-                        on: {
-                          change: function($event) {
-                            var $$selectedVal = Array.prototype.filter
-                              .call($event.target.options, function(o) {
-                                return o.selected
-                              })
-                              .map(function(o) {
-                                var val = "_value" in o ? o._value : o.value
-                                return val
-                              })
-                            _vm.$set(
-                              _vm.currentNote,
-                              "packagetype",
-                              $event.target.multiple
-                                ? $$selectedVal
-                                : $$selectedVal[0]
-                            )
-                          }
-                        }
-                      },
-                      _vm._l(_vm.packagetypelist, function(packagetype, index) {
-                        return _c(
-                          "option",
-                          { key: index, domProps: { value: packagetype.name } },
-                          [
-                            _vm._v(
-                              "\n\t\t\t\t\t\t\t" +
-                                _vm._s(packagetype.label) +
-                                "\n\t\t\t\t\t\t"
-                            )
-                          ]
-                        )
-                      }),
-                      0
-                    )
-                  ]),
-                  _vm._v(" "),
-                  _c("div", [
-                    _c("label", { attrs: { for: "formjson" } }, [
-                      _vm._v("Debugging window")
-                    ]),
-                    _vm._v(" "),
-                    _c("textarea", {
-                      staticClass: "form-control",
-                      attrs: { id: "formjson" },
-                      domProps: { value: JSON.stringify(_vm.currentNote) }
-                    })
                   ])
                 ]),
                 _vm._v(" "),
@@ -37265,7 +37060,7 @@ var render = function() {
                     staticClass: "primary",
                     attrs: {
                       type: "button",
-                      value: _vm.t("notestutorial", "Send"),
+                      value: _vm.t("notestutorial", "Move to Ready"),
                       disabled: true
                     }
                   }),
@@ -37275,15 +37070,6 @@ var render = function() {
                     attrs: {
                       type: "button",
                       value: _vm.t("notestutorial", "Preview"),
-                      disabled: true
-                    }
-                  }),
-                  _vm._v(" "),
-                  _c("input", {
-                    staticClass: "primary",
-                    attrs: {
-                      type: "button",
-                      value: _vm.t("notestutorial", "Check Recipients"),
                       disabled: true
                     }
                   }),
@@ -37320,19 +37106,13 @@ var render = function() {
                     staticClass: "primary",
                     attrs: {
                       type: "button",
-                      value: _vm.t("notestutorial", "Save As Draft"),
+                      value:
+                        _vm.currentNote.id === -1
+                          ? _vm.t("notestutorial", "Save As Draft")
+                          : "Save",
                       disabled: _vm.updating || !_vm.savePossible
                     },
                     on: { click: _vm.saveNote }
-                  }),
-                  _vm._v(" "),
-                  _c("input", {
-                    staticClass: "primary",
-                    attrs: {
-                      type: "button",
-                      value: _vm.t("notestutorial", "Save As Template"),
-                      disabled: true
-                    }
                   })
                 ])
               ],
@@ -46166,4 +45946,4 @@ vue__WEBPACK_IMPORTED_MODULE_0__["default"].mixin({
 /***/ })
 
 /******/ });
-//# sourceMappingURL=notestutorial-main.js.map?v=95dcd63213c9726c2f85
+//# sourceMappingURL=notestutorial-main.js.map?v=3a2a7b814ebfcdcdd7cd
