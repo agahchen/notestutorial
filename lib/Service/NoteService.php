@@ -7,6 +7,8 @@ use Exception;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Db\MultipleObjectsReturnedException;
 
+use OCP\Files\Folder;
+
 use OCA\NotesTutorial\Db\Note;
 use OCA\NotesTutorial\Db\NoteMapper;
 
@@ -46,8 +48,13 @@ class NoteService {
 	}
 
 	public function create($title, $content, $userId, $to, $formno, $agency, $policeno, $policeemail, $packagetype) {
+		//$f = Folder::newFolder('test folder');
+
+		
+
 		$note = new Note();
 		$note->setTitle($title);
+		//$note->setContent($f::getDirectoryListing()[0].getPath());
 		$note->setContent($content);
 		$note->setUserId($userId);
 		$note->setTo($to);

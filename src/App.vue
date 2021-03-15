@@ -326,7 +326,7 @@ export default {
 					formno: '',
 					content: '',
 					to: 'rsbc',
-					agency: '',
+					agency: 'vicpd',
 					policeno: '',
 					policeemail: '',
 					packagetype: 'vi',
