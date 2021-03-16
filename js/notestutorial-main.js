@@ -15844,6 +15844,12 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 //
 //
 //
+//
+//
+//
+//
+//
+//
 
 
 
@@ -16035,6 +16041,18 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       }), 1);
       this.currentNoteId = null;
     },
+    isNumber: function isNumber(evt) {
+      // if (!evt) {
+      // evt = window.event;
+      // }
+      var charCode = evt.which ? evt.which : evt.keyCode;
+
+      if (charCode > 31 && (charCode < 48 || charCode > 57) && charCode !== 46) {
+        evt.preventDefault();
+      } else {
+        return true;
+      }
+    },
 
     /**
      * Create a new note by sending the information to the server
@@ -16124,10 +16142,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     },
 
     /**
-     * Delete a note, remove it from the frontend and show a hint
+     * move the existing to note to ready folder
      * @param {Object} note Note object
      */
-    deleteNote: function deleteNote(note) {
+    moveNoteToReady: function moveNoteToReady(note) {
       var _this7 = this;
 
       return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee4() {
@@ -16135,40 +16153,40 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           while (1) {
             switch (_context4.prev = _context4.next) {
               case 0:
-                _context4.prev = 0;
-                _context4.next = 3;
-                return _nextcloud_axios__WEBPACK_IMPORTED_MODULE_8___default.a.delete(Object(_nextcloud_router__WEBPACK_IMPORTED_MODULE_6__["generateUrl"])("/apps/notestutorial/notes/".concat(note.id)));
+                _this7.updating = true; // signal the move by assigning a value to policeemail
 
-              case 3:
-                _this7.notes.splice(_this7.notes.indexOf(note), 1);
+                note.policeemail = '@';
+                _context4.prev = 2;
+                _context4.next = 5;
+                return _nextcloud_axios__WEBPACK_IMPORTED_MODULE_8___default.a.put(Object(_nextcloud_router__WEBPACK_IMPORTED_MODULE_6__["generateUrl"])("/apps/notestutorial/notes/".concat(note.id)), note);
 
-                if (_this7.currentNoteId === note.id) {
-                  _this7.currentNoteId = null;
-                }
-
-                Object(_nextcloud_dialogs__WEBPACK_IMPORTED_MODULE_7__["showSuccess"])(t('notestutorial', 'Impoundment form deleted'));
-                _context4.next = 12;
+              case 5:
+                _context4.next = 11;
                 break;
 
-              case 8:
-                _context4.prev = 8;
-                _context4.t0 = _context4["catch"](0);
+              case 7:
+                _context4.prev = 7;
+                _context4.t0 = _context4["catch"](2);
                 console.error(_context4.t0);
-                Object(_nextcloud_dialogs__WEBPACK_IMPORTED_MODULE_7__["showError"])(t('notestutorial', 'Could not delete the impoundment folder'));
+                Object(_nextcloud_dialogs__WEBPACK_IMPORTED_MODULE_7__["showError"])(t('notestutorial', 'Could not update the impoundment form'));
+
+              case 11:
+                _this7.updating = false;
 
               case 12:
               case "end":
                 return _context4.stop();
             }
           }
-        }, _callee4, null, [[0, 8]]);
+        }, _callee4, null, [[2, 7]]);
       }))();
     },
 
     /**
-     * Close current note
+     * Delete a note, remove it from the frontend and show a hint
+     * @param {Object} note Note object
      */
-    closeCurrentNote: function closeCurrentNote() {
+    deleteNote: function deleteNote(note) {
       var _this8 = this;
 
       return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee5() {
@@ -16176,14 +16194,55 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           while (1) {
             switch (_context5.prev = _context5.next) {
               case 0:
-                _this8.currentNoteId = null;
+                _context5.prev = 0;
+                _context5.next = 3;
+                return _nextcloud_axios__WEBPACK_IMPORTED_MODULE_8___default.a.delete(Object(_nextcloud_router__WEBPACK_IMPORTED_MODULE_6__["generateUrl"])("/apps/notestutorial/notes/".concat(note.id)));
 
-              case 1:
+              case 3:
+                _this8.notes.splice(_this8.notes.indexOf(note), 1);
+
+                if (_this8.currentNoteId === note.id) {
+                  _this8.currentNoteId = null;
+                }
+
+                Object(_nextcloud_dialogs__WEBPACK_IMPORTED_MODULE_7__["showSuccess"])(t('notestutorial', 'Impoundment form deleted'));
+                _context5.next = 12;
+                break;
+
+              case 8:
+                _context5.prev = 8;
+                _context5.t0 = _context5["catch"](0);
+                console.error(_context5.t0);
+                Object(_nextcloud_dialogs__WEBPACK_IMPORTED_MODULE_7__["showError"])(t('notestutorial', 'Could not delete the impoundment folder'));
+
+              case 12:
               case "end":
                 return _context5.stop();
             }
           }
-        }, _callee5);
+        }, _callee5, null, [[0, 8]]);
+      }))();
+    },
+
+    /**
+     * Close current note
+     */
+    closeCurrentNote: function closeCurrentNote() {
+      var _this9 = this;
+
+      return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee6() {
+        return regeneratorRuntime.wrap(function _callee6$(_context6) {
+          while (1) {
+            switch (_context6.prev = _context6.next) {
+              case 0:
+                _this9.currentNoteId = null;
+
+              case 1:
+              case "end":
+                return _context6.stop();
+            }
+          }
+        }, _callee6);
       }))();
     }
   }
@@ -36917,72 +36976,13 @@ var render = function() {
       _vm._v(" "),
       _c("AppContent", { attrs: { "allow-swipe-navigation": false } }, [
         _vm.currentNote
-          ? _c(
-              "div",
-              { attrs: { id: "current-note" } },
-              [
-                _c("div", [
-                  _c("input", {
-                    staticClass: "primary",
-                    attrs: {
-                      type: "button",
-                      value: _vm.t("notestutorial", "Move to Ready"),
-                      disabled: true
-                    }
-                  }),
-                  _vm._v(" "),
-                  _c("input", {
-                    staticClass: "primary",
-                    attrs: {
-                      type: "button",
-                      value: _vm.t("notestutorial", "Preview"),
-                      disabled: true
-                    }
-                  }),
-                  _vm._v(" "),
-                  _vm.currentNote.id === -1
-                    ? _c("input", {
-                        staticClass: "primary",
-                        attrs: {
-                          type: "button",
-                          value: _vm.t("notestutorial", "Cancel"),
-                          disabled: false
-                        },
-                        on: {
-                          click: function($event) {
-                            return _vm.cancelNewNote(_vm.currentNote)
-                          }
-                        }
-                      })
-                    : _c("input", {
-                        staticClass: "primary",
-                        attrs: {
-                          type: "button",
-                          value: _vm.t("notestutorial", "Close"),
-                          disabled: false
-                        },
-                        on: {
-                          click: function($event) {
-                            return _vm.closeCurrentNote()
-                          }
-                        }
-                      }),
-                  _vm._v(" "),
-                  _c("input", {
-                    staticClass: "primary",
-                    attrs: {
-                      type: "button",
-                      value:
-                        _vm.currentNote.id === -1
-                          ? _vm.t("notestutorial", "Save As Draft")
-                          : "Save",
-                      disabled: _vm.updating || !_vm.savePossible
-                    },
-                    on: { click: _vm.saveNote }
-                  })
-                ]),
-                _vm._v(" "),
-                _c("div", { staticClass: "form-group" }, [
+          ? _c("div", { attrs: { id: "current-note" } }, [
+              _c("div"),
+              _vm._v(" "),
+              _c(
+                "div",
+                { staticClass: "form-group" },
+                [
                   _c("div", [
                     _c("label", { attrs: { for: "formno" } }, [
                       _vm._v("Prohibition # / VI #")
@@ -37015,109 +37015,118 @@ var render = function() {
                     })
                   ]),
                   _vm._v(" "),
-                  _c("div", [
-                    _c("label", { attrs: { for: "policeno" } }, [
-                      _vm._v("Total number of pages")
-                    ]),
-                    _vm._v(" "),
-                    _c("input", {
-                      directives: [
-                        {
-                          name: "model",
-                          rawName: "v-model",
-                          value: _vm.currentNote.policeno,
-                          expression: "currentNote.policeno"
+                  _vm.currentNote.id !== -1
+                    ? _c("vue-dropzone", {
+                        attrs: {
+                          disabled: _vm.savePossible,
+                          options: _vm.dropzoneOptions
                         }
-                      ],
-                      staticClass: "form-control",
-                      attrs: { id: "policeno", type: "text" },
-                      domProps: { value: _vm.currentNote.policeno },
-                      on: {
-                        input: function($event) {
-                          if ($event.target.composing) {
-                            return
+                      })
+                    : _vm._e(),
+                  _vm._v(" "),
+                  _vm.currentNote.id !== -1
+                    ? _c("div", [
+                        _c("label", { attrs: { for: "policeno" } }, [
+                          _vm._v("Total number of pages")
+                        ]),
+                        _vm._v(" "),
+                        _c("input", {
+                          directives: [
+                            {
+                              name: "model",
+                              rawName: "v-model",
+                              value: _vm.currentNote.policeno,
+                              expression: "currentNote.policeno"
+                            }
+                          ],
+                          staticClass: "form-control",
+                          attrs: { id: "policeno", type: "text" },
+                          domProps: { value: _vm.currentNote.policeno },
+                          on: {
+                            keypress: function($event) {
+                              return _vm.isNumber($event)
+                            },
+                            input: function($event) {
+                              if ($event.target.composing) {
+                                return
+                              }
+                              _vm.$set(
+                                _vm.currentNote,
+                                "policeno",
+                                $event.target.value
+                              )
+                            }
                           }
-                          _vm.$set(
-                            _vm.currentNote,
-                            "policeno",
-                            $event.target.value
-                          )
+                        })
+                      ])
+                    : _vm._e()
+                ],
+                1
+              ),
+              _vm._v(" "),
+              _c("div", [
+                _vm.currentNote.id !== -1
+                  ? _c("input", {
+                      staticClass: "primary",
+                      attrs: {
+                        type: "button",
+                        value: _vm.t("notestutorial", "Move to Ready"),
+                        disabled: _vm.currentNote.policeno.length <= 0
+                      },
+                      on: {
+                        click: function($event) {
+                          return _vm.moveNoteToReady(_vm.currentNote)
                         }
                       }
                     })
-                  ])
-                ]),
+                  : _vm._e(),
                 _vm._v(" "),
-                _c("vue-dropzone", {
+                _vm.currentNote.id === -1
+                  ? _c("input", {
+                      staticClass: "primary",
+                      attrs: {
+                        type: "button",
+                        value: _vm.t("notestutorial", "Cancel"),
+                        disabled: false
+                      },
+                      on: {
+                        click: function($event) {
+                          return _vm.cancelNewNote(_vm.currentNote)
+                        }
+                      }
+                    })
+                  : _c("input", {
+                      staticClass: "primary",
+                      attrs: {
+                        type: "button",
+                        value: _vm.t("notestutorial", "Close"),
+                        disabled: false
+                      },
+                      on: {
+                        click: function($event) {
+                          return _vm.closeCurrentNote()
+                        }
+                      }
+                    }),
+                _vm._v(" "),
+                _c("input", {
+                  staticClass: "primary",
                   attrs: {
-                    disabled: _vm.savePossible,
-                    options: _vm.dropzoneOptions
-                  }
-                }),
-                _vm._v(" "),
-                _c("div", [
-                  _c("input", {
-                    staticClass: "primary",
-                    attrs: {
-                      type: "button",
-                      value: _vm.t("notestutorial", "Move to Ready"),
-                      disabled: true
-                    }
-                  }),
-                  _vm._v(" "),
-                  _c("input", {
-                    staticClass: "primary",
-                    attrs: {
-                      type: "button",
-                      value: _vm.t("notestutorial", "Preview"),
-                      disabled: true
-                    }
-                  }),
-                  _vm._v(" "),
-                  _vm.currentNote.id === -1
-                    ? _c("input", {
-                        staticClass: "primary",
-                        attrs: {
-                          type: "button",
-                          value: _vm.t("notestutorial", "Cancel"),
-                          disabled: false
-                        },
-                        on: {
-                          click: function($event) {
-                            return _vm.cancelNewNote(_vm.currentNote)
-                          }
-                        }
-                      })
-                    : _c("input", {
-                        staticClass: "primary",
-                        attrs: {
-                          type: "button",
-                          value: _vm.t("notestutorial", "Close"),
-                          disabled: false
-                        },
-                        on: {
-                          click: function($event) {
-                            return _vm.closeCurrentNote()
-                          }
-                        }
-                      }),
-                  _vm._v(" "),
-                  _c("input", {
-                    staticClass: "primary",
-                    attrs: {
-                      type: "button",
-                      value:
-                        _vm.currentNote.id === -1
-                          ? _vm.t("notestutorial", "Save As Draft")
-                          : "Save",
-                      disabled: _vm.updating || !_vm.savePossible
-                    },
-                    on: { click: _vm.saveNote }
-                  })
-                ])
-              ],
-              1
-            )
+                    type: "button",
+                    value:
+                      _vm.currentNote.id === -1
+                        ? _vm.t("notestutorial", "Save As Draft")
+                        : "Save",
+                    disabled:
+                      _vm.updating ||
+                      !_vm.savePossible ||
+                      (_vm.currentNote.id !== -1 &&
+                        _vm.currentNote.policeno.length <= 0)
+                  },
+                  on: { click: _vm.saveNote }
+                })
+              ])
+            ])
           : _c("div", { attrs: { id: "emptycontent" } }, [
               _c("div", { staticClass: "icon-file" }),
               _vm._v(" "),
@@ -45946,4 +45955,4 @@ vue__WEBPACK_IMPORTED_MODULE_0__["default"].mixin({
 /***/ })
 
 /******/ });
-//# sourceMappingURL=notestutorial-main.js.map?v=3a2a7b814ebfcdcdd7cd
+//# sourceMappingURL=notestutorial-main.js.map?v=42d645562c1ae829067f

@@ -36,15 +36,18 @@
 			:allow-swipe-navigation="false">
 			<div v-if="currentNote" id="current-note">
 				<div>
-					<input type="button"
+					<!--input v-if="currentNote.id !== -1"
+						type="button"
 						class="primary"
 						:value="t('notestutorial', 'Move to Ready')"
-						:disabled="true">
-					<input type="button"
+						:disabled="true"-->
+					<!-- -->
+					<!--input type="button"
 						class="primary"
 						:value="t('notestutorial', 'Preview')"
-						:disabled="true">
-					<input v-if="currentNote.id === -1"
+						:disabled="true"-->
+					<!-- -->
+					<!--input v-if="currentNote.id === -1"
 						type="button"
 						class="primary"
 						:value="t('notestutorial', 'Cancel')"
@@ -60,7 +63,7 @@
 						class="primary"
 						:value="currentNote.id === -1 ? t('notestutorial', 'Save As Draft') : 'Save'"
 						:disabled="updating || !savePossible"
-						@click="saveNote">
+						@click="saveNote"-->
 				</div>
 				<div class="form-group">
 					<!--div class="form-control">
@@ -96,12 +99,16 @@
 							</option>
 						</select>
 					</div-->
-					<div>
+					<vue-dropzone v-if="currentNote.id !== -1"
+						:disabled="savePossible"
+						:options="dropzoneOptions" />
+					<div v-if="currentNote.id !== -1">
 						<label for="policeno">Total number of pages</label>
 						<input id="policeno"
 							v-model="currentNote.policeno"
 							type="text"
-							class="form-control">
+							class="form-control"
+							@keypress="isNumber($event)">
 					</div>
 					<!--div>
 						<label for="policeemail">Police Email</label>
@@ -130,18 +137,17 @@
 							:value="JSON.stringify(currentNote)" />
 					</div-->
 				</div>
-				<vue-dropzone
-					:disabled="savePossible"
-					:options="dropzoneOptions" />
 				<div>
-					<input type="button"
+					<input v-if="currentNote.id !== -1"
+						type="button"
 						class="primary"
 						:value="t('notestutorial', 'Move to Ready')"
-						:disabled="true">
-					<input type="button"
+						:disabled="currentNote.policeno.length <= 0"
+						@click="moveNoteToReady(currentNote)">
+					<!--input type="button"
 						class="primary"
 						:value="t('notestutorial', 'Preview')"
-						:disabled="true">
+						:disabled="true"-->
 					<input v-if="currentNote.id === -1"
 						type="button"
 						class="primary"
@@ -157,7 +163,7 @@
 					<input type="button"
 						class="primary"
 						:value="currentNote.id === -1 ? t('notestutorial', 'Save As Draft') : 'Save'"
-						:disabled="updating || !savePossible"
+						:disabled="updating || !savePossible || (currentNote.id !== -1 && currentNote.policeno.length <= 0)"
 						@click="saveNote">
 				</div>
 			</div>
@@ -331,6 +337,18 @@ export default {
 			this.notes.splice(this.notes.findIndex((note) => note.id === -1), 1)
 			this.currentNoteId = null
 		},
+		isNumber(evt) {
+			// if (!evt) {
+			// evt = window.event;
+			// }
+
+			const charCode = (evt.which) ? evt.which : evt.keyCode
+			if ((charCode > 31 && (charCode < 48 || charCode > 57)) && charCode !== 46) {
+				evt.preventDefault()
+			} else {
+				return true
+			}
+		},
 		/**
 		 * Create a new note by sending the information to the server
 		 * @param {Object} note Note object
@@ -354,6 +372,24 @@ export default {
 		 */
 		async updateNote(note) {
 			this.updating = true
+			try {
+				await axios.put(generateUrl(`/apps/notestutorial/notes/${note.id}`), note)
+			} catch (e) {
+				console.error(e)
+				showError(t('notestutorial', 'Could not update the impoundment form'))
+			}
+			this.updating = false
+		},
+		/**
+		 * move the existing to note to ready folder
+		 * @param {Object} note Note object
+		 */
+		async moveNoteToReady(note) {
+			this.updating = true
+
+			// signal the move by assigning a value to policeemail
+			note.policeemail = '@'
+
 			try {
 				await axios.put(generateUrl(`/apps/notestutorial/notes/${note.id}`), note)
 			} catch (e) {

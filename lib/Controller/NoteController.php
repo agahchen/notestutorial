@@ -85,7 +85,7 @@ class NoteController extends Controller {
 				if ($folder->nodeExists('metadata.txt') === FALSE) {
 					$file = $folder->newFile('metadata.txt');
 				} else {
-					$file = $folder->newFile('metadata2.txt');
+					$file = $folder->get('metadata.txt');
 				}
 			} catch (\OCP\Files\NotFoundException $e) {
 			}
@@ -106,6 +106,53 @@ class NoteController extends Controller {
 	 */
 	public function update(int $id, string $title, string $content,
 		string $to, string $formno, string $agency, string $policeno, string $policeemail, string $packagetype): DataResponse {
+
+		// https://help.nextcloud.com/t/how-create-a-folder-file-in-nextcloud-with-php/85409/2
+		$userFolder = $this->rootFolder->getUserFolder($this->userId);
+
+		try {
+			try {
+				if (empty($policeemail)) {
+					// update
+					$folderPath = '/VicPD Draft/' . $formno;
+					if ($userFolder->nodeExists($folderPath) === FALSE) {
+						$folder = $userFolder->newFolder($folderPath);
+					} else {
+						$folder = $userFolder->get($folderPath);
+					}
+
+					if ($folder->nodeExists('metadata.txt') === FALSE) {
+						$file = $folder->newFile('metadata.txt');
+					} else {
+						$file = $folder->get('metadata.txt');
+					}
+
+					// the id can be accessed by $file->getId();
+					$file->putContent('pages: ' . $policeno);
+				} else {
+					// move
+					$folderPath = '/VicPD Draft/' . $formno;
+					$readyFolderPath = '/VicPD Ready/';
+
+					if ($userFolder->nodeExists($readyFolderPath) === FALSE) {
+						$readyFolderFullPath = $userFolder->newFolder($readyFolderPath)->getPath();
+					} else {
+						$readyFolderFullPath = $userFolder->get($readyFolderPath)->getPath();
+					}
+
+					$folder = $userFolder->get($folderPath);
+
+					//$folder->newFile('2nd file.txt');
+
+					$folder->move($readyFolderFullPath . '/' . $formno);
+					//$readyFolder->copy($folderPath);
+				}
+			} catch (\OCP\Files\NotFoundException $e) {
+			}
+		} catch(\OCP\Files\NotPermittedException $e) {
+			// you have to create this exception by yourself
+		}
+
 		return $this->handleNotFound(function () use ($id, $title, $content, $to, $formno, $agency, $policeno, $policeemail, $packagetype) {
 			return $this->service->update($id, $title, $content, $this->userId,
 				$to, $formno, $agency, $policeno, $policeemail, $packagetype);
