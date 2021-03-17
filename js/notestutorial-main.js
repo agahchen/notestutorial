@@ -15850,6 +15850,12 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 //
 //
 //
+//
+//
+//
+//
+//
+//
 
 
 
@@ -15934,6 +15940,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     savePossible: function savePossible() {
       return this.currentNote && this.currentNote.formno !== '';
     }
+  },
+  created: function created() {
+    this.internval = setInterval(this.refreshList, 5000);
   },
 
   /**
@@ -16053,52 +16062,88 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         return true;
       }
     },
+    refreshList: function refreshList() {
+      var _this5 = this;
+
+      return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee2() {
+        var response;
+        return regeneratorRuntime.wrap(function _callee2$(_context2) {
+          while (1) {
+            switch (_context2.prev = _context2.next) {
+              case 0:
+                _context2.prev = 0;
+                _context2.next = 3;
+                return _nextcloud_axios__WEBPACK_IMPORTED_MODULE_8___default.a.get(Object(_nextcloud_router__WEBPACK_IMPORTED_MODULE_6__["generateUrl"])('/apps/notestutorial/notes'));
+
+              case 3:
+                response = _context2.sent;
+                _this5.notes = response.data;
+                _context2.next = 11;
+                break;
+
+              case 7:
+                _context2.prev = 7;
+                _context2.t0 = _context2["catch"](0);
+                console.error(_context2.t0);
+                Object(_nextcloud_dialogs__WEBPACK_IMPORTED_MODULE_7__["showError"])(t('notestutorial', 'Could not fetch impoundment forms'));
+
+              case 11:
+                _this5.loading = false;
+
+              case 12:
+              case "end":
+                return _context2.stop();
+            }
+          }
+        }, _callee2, null, [[0, 7]]);
+      }))();
+    },
 
     /**
      * Create a new note by sending the information to the server
      * @param {Object} note Note object
      */
     createNote: function createNote(note) {
-      var _this5 = this;
+      var _this6 = this;
 
-      return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee2() {
+      return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee3() {
         var response, index;
-        return regeneratorRuntime.wrap(function _callee2$(_context2) {
+        return regeneratorRuntime.wrap(function _callee3$(_context3) {
           while (1) {
-            switch (_context2.prev = _context2.next) {
+            switch (_context3.prev = _context3.next) {
               case 0:
-                _this5.updating = true;
-                _context2.prev = 1;
-                _context2.next = 4;
+                _this6.updating = true;
+                _context3.prev = 1;
+                _context3.next = 4;
                 return _nextcloud_axios__WEBPACK_IMPORTED_MODULE_8___default.a.post(Object(_nextcloud_router__WEBPACK_IMPORTED_MODULE_6__["generateUrl"])('/apps/notestutorial/notes'), note);
 
               case 4:
-                response = _context2.sent;
-                index = _this5.notes.findIndex(function (match) {
-                  return match.id === _this5.currentNoteId;
+                response = _context3.sent;
+                index = _this6.notes.findIndex(function (match) {
+                  return match.id === _this6.currentNoteId;
                 });
 
-                _this5.$set(_this5.notes, index, response.data);
+                _this6.$set(_this6.notes, index, response.data);
 
-                _this5.currentNoteId = response.data.id;
-                _context2.next = 14;
+                _this6.currentNoteId = response.data.id;
+                _context3.next = 14;
                 break;
 
               case 10:
-                _context2.prev = 10;
-                _context2.t0 = _context2["catch"](1);
-                console.error(_context2.t0);
+                _context3.prev = 10;
+                _context3.t0 = _context3["catch"](1);
+                console.error(_context3.t0);
                 Object(_nextcloud_dialogs__WEBPACK_IMPORTED_MODULE_7__["showError"])(t('notestutorial', 'Could not create the impoundment form'));
 
               case 14:
-                _this5.updating = false;
+                _this6.updating = false;
 
               case 15:
               case "end":
-                return _context2.stop();
+                return _context3.stop();
             }
           }
-        }, _callee2, null, [[1, 10]]);
+        }, _callee3, null, [[1, 10]]);
       }))();
     },
 
@@ -16107,37 +16152,37 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
      * @param {Object} note Note object
      */
     updateNote: function updateNote(note) {
-      var _this6 = this;
+      var _this7 = this;
 
-      return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee3() {
-        return regeneratorRuntime.wrap(function _callee3$(_context3) {
+      return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee4() {
+        return regeneratorRuntime.wrap(function _callee4$(_context4) {
           while (1) {
-            switch (_context3.prev = _context3.next) {
+            switch (_context4.prev = _context4.next) {
               case 0:
-                _this6.updating = true;
-                _context3.prev = 1;
-                _context3.next = 4;
+                _this7.updating = true;
+                _context4.prev = 1;
+                _context4.next = 4;
                 return _nextcloud_axios__WEBPACK_IMPORTED_MODULE_8___default.a.put(Object(_nextcloud_router__WEBPACK_IMPORTED_MODULE_6__["generateUrl"])("/apps/notestutorial/notes/".concat(note.id)), note);
 
               case 4:
-                _context3.next = 10;
+                _context4.next = 10;
                 break;
 
               case 6:
-                _context3.prev = 6;
-                _context3.t0 = _context3["catch"](1);
-                console.error(_context3.t0);
+                _context4.prev = 6;
+                _context4.t0 = _context4["catch"](1);
+                console.error(_context4.t0);
                 Object(_nextcloud_dialogs__WEBPACK_IMPORTED_MODULE_7__["showError"])(t('notestutorial', 'Could not update the impoundment form'));
 
               case 10:
-                _this6.updating = false;
+                _this7.updating = false;
 
               case 11:
               case "end":
-                return _context3.stop();
+                return _context4.stop();
             }
           }
-        }, _callee3, null, [[1, 6]]);
+        }, _callee4, null, [[1, 6]]);
       }))();
     },
 
@@ -16146,39 +16191,39 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
      * @param {Object} note Note object
      */
     moveNoteToReady: function moveNoteToReady(note) {
-      var _this7 = this;
+      var _this8 = this;
 
-      return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee4() {
-        return regeneratorRuntime.wrap(function _callee4$(_context4) {
+      return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee5() {
+        return regeneratorRuntime.wrap(function _callee5$(_context5) {
           while (1) {
-            switch (_context4.prev = _context4.next) {
+            switch (_context5.prev = _context5.next) {
               case 0:
-                _this7.updating = true; // signal the move by assigning a value to policeemail
+                _this8.updating = true; // signal the move by assigning a value to policeemail
 
                 note.policeemail = '@';
-                _context4.prev = 2;
-                _context4.next = 5;
+                _context5.prev = 2;
+                _context5.next = 5;
                 return _nextcloud_axios__WEBPACK_IMPORTED_MODULE_8___default.a.put(Object(_nextcloud_router__WEBPACK_IMPORTED_MODULE_6__["generateUrl"])("/apps/notestutorial/notes/".concat(note.id)), note);
 
               case 5:
-                _context4.next = 11;
+                _context5.next = 11;
                 break;
 
               case 7:
-                _context4.prev = 7;
-                _context4.t0 = _context4["catch"](2);
-                console.error(_context4.t0);
+                _context5.prev = 7;
+                _context5.t0 = _context5["catch"](2);
+                console.error(_context5.t0);
                 Object(_nextcloud_dialogs__WEBPACK_IMPORTED_MODULE_7__["showError"])(t('notestutorial', 'Could not update the impoundment form'));
 
               case 11:
-                _this7.updating = false;
+                _this8.updating = false;
 
               case 12:
               case "end":
-                return _context4.stop();
+                return _context5.stop();
             }
           }
-        }, _callee4, null, [[2, 7]]);
+        }, _callee5, null, [[2, 7]]);
       }))();
     },
 
@@ -16187,47 +16232,6 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
      * @param {Object} note Note object
      */
     deleteNote: function deleteNote(note) {
-      var _this8 = this;
-
-      return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee5() {
-        return regeneratorRuntime.wrap(function _callee5$(_context5) {
-          while (1) {
-            switch (_context5.prev = _context5.next) {
-              case 0:
-                _context5.prev = 0;
-                _context5.next = 3;
-                return _nextcloud_axios__WEBPACK_IMPORTED_MODULE_8___default.a.delete(Object(_nextcloud_router__WEBPACK_IMPORTED_MODULE_6__["generateUrl"])("/apps/notestutorial/notes/".concat(note.id)));
-
-              case 3:
-                _this8.notes.splice(_this8.notes.indexOf(note), 1);
-
-                if (_this8.currentNoteId === note.id) {
-                  _this8.currentNoteId = null;
-                }
-
-                Object(_nextcloud_dialogs__WEBPACK_IMPORTED_MODULE_7__["showSuccess"])(t('notestutorial', 'Impoundment form deleted'));
-                _context5.next = 12;
-                break;
-
-              case 8:
-                _context5.prev = 8;
-                _context5.t0 = _context5["catch"](0);
-                console.error(_context5.t0);
-                Object(_nextcloud_dialogs__WEBPACK_IMPORTED_MODULE_7__["showError"])(t('notestutorial', 'Could not delete the impoundment folder'));
-
-              case 12:
-              case "end":
-                return _context5.stop();
-            }
-          }
-        }, _callee5, null, [[0, 8]]);
-      }))();
-    },
-
-    /**
-     * Close current note
-     */
-    closeCurrentNote: function closeCurrentNote() {
       var _this9 = this;
 
       return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee6() {
@@ -16235,14 +16239,55 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           while (1) {
             switch (_context6.prev = _context6.next) {
               case 0:
-                _this9.currentNoteId = null;
+                _context6.prev = 0;
+                _context6.next = 3;
+                return _nextcloud_axios__WEBPACK_IMPORTED_MODULE_8___default.a.delete(Object(_nextcloud_router__WEBPACK_IMPORTED_MODULE_6__["generateUrl"])("/apps/notestutorial/notes/".concat(note.id)));
 
-              case 1:
+              case 3:
+                _this9.notes.splice(_this9.notes.indexOf(note), 1);
+
+                if (_this9.currentNoteId === note.id) {
+                  _this9.currentNoteId = null;
+                }
+
+                Object(_nextcloud_dialogs__WEBPACK_IMPORTED_MODULE_7__["showSuccess"])(t('notestutorial', 'Impoundment form deleted'));
+                _context6.next = 12;
+                break;
+
+              case 8:
+                _context6.prev = 8;
+                _context6.t0 = _context6["catch"](0);
+                console.error(_context6.t0);
+                Object(_nextcloud_dialogs__WEBPACK_IMPORTED_MODULE_7__["showError"])(t('notestutorial', 'Could not delete the impoundment folder'));
+
+              case 12:
               case "end":
                 return _context6.stop();
             }
           }
-        }, _callee6);
+        }, _callee6, null, [[0, 8]]);
+      }))();
+    },
+
+    /**
+     * Close current note
+     */
+    closeCurrentNote: function closeCurrentNote() {
+      var _this10 = this;
+
+      return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee7() {
+        return regeneratorRuntime.wrap(function _callee7$(_context7) {
+          while (1) {
+            switch (_context7.prev = _context7.next) {
+              case 0:
+                _this10.currentNoteId = null;
+
+              case 1:
+              case "end":
+                return _context7.stop();
+            }
+          }
+        }, _callee7);
       }))();
     }
   }
@@ -36878,82 +36923,87 @@ var render = function() {
             _c(
               "p",
               { staticStyle: { "margin-left": "2.5em" } },
-              _vm._l(_vm.notes, function(note) {
-                return _c(
-                  "AppNavigationItem",
-                  {
-                    key: note.id,
-                    class: { active: _vm.currentNoteId === note.id },
-                    attrs: {
-                      title: note.formno
-                        ? note.formno
-                        : _vm.t("notestutorial", "New impoundment folder")
-                    },
-                    on: {
-                      click: function($event) {
-                        return _vm.openNote(note)
+              _vm._l(
+                _vm.notes.filter(function(n) {
+                  return !n.policeemail
+                }),
+                function(note) {
+                  return _c(
+                    "AppNavigationItem",
+                    {
+                      key: note.id,
+                      class: { active: _vm.currentNoteId === note.id },
+                      attrs: {
+                        title: note.formno
+                          ? note.formno
+                          : _vm.t("notestutorial", "New impoundment folder")
+                      },
+                      on: {
+                        click: function($event) {
+                          return _vm.openNote(note)
+                        }
                       }
-                    }
-                  },
-                  [
-                    _c(
-                      "template",
-                      { slot: "actions" },
-                      [
-                        note.id === -1
-                          ? _c(
-                              "ActionButton",
-                              {
-                                attrs: { icon: "icon-close" },
-                                on: {
-                                  click: function($event) {
-                                    return _vm.cancelNewNote(note)
+                    },
+                    [
+                      _c(
+                        "template",
+                        { slot: "actions" },
+                        [
+                          note.id === -1
+                            ? _c(
+                                "ActionButton",
+                                {
+                                  attrs: { icon: "icon-close" },
+                                  on: {
+                                    click: function($event) {
+                                      return _vm.cancelNewNote(note)
+                                    }
                                   }
-                                }
-                              },
-                              [
-                                _vm._v(
-                                  "\n\t\t\t\t\t\t\t" +
-                                    _vm._s(
-                                      _vm.t(
-                                        "notestutorial",
-                                        "Cancel impoundment folder creation"
-                                      )
-                                    ) +
-                                    "\n\t\t\t\t\t\t"
-                                )
-                              ]
-                            )
-                          : _c(
-                              "ActionButton",
-                              {
-                                attrs: { icon: "icon-delete" },
-                                on: {
-                                  click: function($event) {
-                                    return _vm.deleteNote(note)
+                                },
+                                [
+                                  _vm._v(
+                                    "\n\t\t\t\t\t\t\t" +
+                                      _vm._s(
+                                        _vm.t(
+                                          "notestutorial",
+                                          "Cancel impoundment folder creation"
+                                        )
+                                      ) +
+                                      "\n\t\t\t\t\t\t"
+                                  )
+                                ]
+                              )
+                            : _c(
+                                "ActionButton",
+                                {
+                                  attrs: { icon: "icon-delete" },
+                                  on: {
+                                    click: function($event) {
+                                      return _vm.deleteNote(note)
+                                    }
                                   }
-                                }
-                              },
-                              [
-                                _vm._v(
-                                  "\n\t\t\t\t\t\t\t" +
-                                    _vm._s(
-                                      _vm.t(
-                                        "notestutorial",
-                                        "Delete impoundment folder"
-                                      )
-                                    ) +
-                                    "\n\t\t\t\t\t\t"
-                                )
-                              ]
-                            )
-                      ],
-                      1
-                    )
-                  ],
-                  2
-                )
-              }),
+                                },
+                                [
+                                  _vm._v(
+                                    "\n\t\t\t\t\t\t\t" +
+                                      _vm._s(
+                                        _vm.t(
+                                          "notestutorial",
+                                          "Delete impoundment folder"
+                                        )
+                                      ) +
+                                      "\n\t\t\t\t\t\t"
+                                  )
+                                ]
+                              )
+                        ],
+                        1
+                      )
+                    ],
+                    2
+                  )
+                }
+              ),
               1
             ),
             _vm._v(" "),
@@ -36967,6 +37017,28 @@ var render = function() {
                     })
                   : _vm._e()
               ],
+              1
+            ),
+            _vm._v(" "),
+            _c(
+              "p",
+              { staticStyle: { "margin-left": "2.5em" } },
+              _vm._l(
+                _vm.notes.filter(function(n) {
+                  return n.policeemail && n.policeemail.length > 0
+                }),
+                function(note) {
+                  return _c("AppNavigationItem", {
+                    key: note.id,
+                    class: { active: _vm.currentNoteId === note.id },
+                    attrs: {
+                      title: note.formno
+                        ? note.formno
+                        : _vm.t("notestutorial", "New impoundment folder")
+                    }
+                  })
+                }
+              ),
               1
             )
           ])
@@ -45955,4 +46027,4 @@ vue__WEBPACK_IMPORTED_MODULE_0__["default"].mixin({
 /***/ })
 
 /******/ });
-//# sourceMappingURL=notestutorial-main.js.map?v=42d645562c1ae829067f
+//# sourceMappingURL=notestutorial-main.js.map?v=d0ad05d9b4c24c3b3630

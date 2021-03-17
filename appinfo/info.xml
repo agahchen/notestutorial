@@ -5,7 +5,7 @@
     <name>RSFT POC</name>
     <summary>App for creating RoadSafetyBC Secure File Transfer POC Impoundment Packages</summary>
     <description><![CDATA[This is a tutorial app for taking notes to demonstrate the Nextcloud API]]></description>
-    <version>18.0.96</version>
+    <version>18.0.105</version>
     <licence>agpl</licence>
     <author mail="david.agahchen@gov.bc.ca" >David Agahchen</author>
     <namespace>NotesTutorial</namespace>

@@ -10,7 +10,7 @@
 			<ul>
 				<strong><AppNavigationItem v-if="notes.length > 0" :key="-999" :title="'Draft'" /></strong>
 				<p style="margin-left:2.5em">
-					<AppNavigationItem v-for="note in notes"
+					<AppNavigationItem v-for="note in notes.filter((n) => { return !n.policeemail })"
 						:key="note.id"
 						:title="note.formno ? note.formno : t('notestutorial', 'New impoundment folder')"
 						:class="{active: currentNoteId === note.id}"
@@ -30,6 +30,12 @@
 					</AppNavigationItem>
 				</p>
 				<strong><AppNavigationItem v-if="notes.length > 0" :key="999" :title="'Ready'" /></strong>
+				<p style="margin-left:2.5em">
+					<AppNavigationItem v-for="note in notes.filter((n) => { return n.policeemail && n.policeemail.length > 0 })"
+						:key="note.id"
+						:title="note.formno ? note.formno : t('notestutorial', 'New impoundment folder')"
+						:class="{active: currentNoteId === note.id}" />
+				</p>
 			</ul>
 		</AppNavigation>
 		<AppContent
@@ -267,6 +273,9 @@ export default {
 			return this.currentNote && this.currentNote.formno !== ''
 		},
 	},
+	created() {
+		this.internval = setInterval(this.refreshList, 5000)
+	},
 	/**
 	 * Fetch list of notes when the component is loaded
 	 */
@@ -348,6 +357,16 @@ export default {
 			} else {
 				return true
 			}
+		},
+		async refreshList() {
+			try {
+				const response = await axios.get(generateUrl('/apps/notestutorial/notes'))
+				this.notes = response.data
+			} catch (e) {
+				console.error(e)
+				showError(t('notestutorial', 'Could not fetch impoundment forms'))
+			}
+			this.loading = false
 		},
 		/**
 		 * Create a new note by sending the information to the server

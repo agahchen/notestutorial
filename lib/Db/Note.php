@@ -30,4 +30,20 @@ class Note extends Entity implements JsonSerializable {
 			'packagetype' => $this->packagetype
 		];
 	}
+
+	public function setId($id): void {
+		$this->id = $id;
+	}
+
+	public function setFormno($formno): void {
+		$this->formno = $formno;
+	}
+
+	public function setReady($flag): void {
+		if ($flag) {
+			$this->policeemail = '@';
+		} else {
+			$this->policeemail = '';
+		}
+	}
 }

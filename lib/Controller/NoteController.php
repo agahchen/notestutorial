@@ -4,6 +4,7 @@ namespace OCA\NotesTutorial\Controller;
 
 use OCA\NotesTutorial\AppInfo\Application;
 use OCA\NotesTutorial\Service\NoteService;
+use OCA\NotesTutorial\Db\Note;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http\DataResponse;
 use OCP\Files\IAppData;
@@ -42,7 +43,42 @@ class NoteController extends Controller {
 	 * @NoAdminRequired
 	 */
 	public function index(): DataResponse {
-		return new DataResponse($this->service->findAll($this->userId));
+		//return new DataResponse($this->service->findAll($this->userId));
+
+		$a = array();
+
+		$n = new Note();
+
+		$n->setId(1);
+		$n->setFormno('ABC');
+
+		array_push($a, $n);
+
+		$n = new Note();
+
+		$n->setId(2);
+		$n->setFormno('123');
+		$n->setReady(true);
+
+		array_push($a, $n);
+
+		$n = new Note();
+
+		$n->setId(2);
+		$n->setFormno('456');
+		$n->setReady(true);
+
+		array_push($a, $n);
+
+		$n = new Note();
+
+		$n->setId(2);
+		$n->setFormno('789');
+		$n->setReady(true);
+
+		array_push($a, $n);
+
+		return new DataResponse($a);
 	}
 
 	/**
