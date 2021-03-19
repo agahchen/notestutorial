@@ -107,7 +107,7 @@ class NoteController extends Controller {
 				$f = $folder->get('metadata.txt');
 				strtok($f->getContent(),':');
 
-				$n->setPoliceno(strtok(':'));
+				$n->setPoliceno(trim(strtok(':')));
 
 
 				$n->setReady(false);
