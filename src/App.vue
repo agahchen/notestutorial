@@ -1,42 +1,68 @@
 <template>
 	<div id="content" class="app-notestutorial">
 		<AppNavigation>
-			<AppNavigationNew v-if="!loading"
-				:text="t('notestutorial', 'New impoundment folder')"
+			<AppNavigationNew
+				:text="t('notestutorial', 'New impoundment package')"
 				:disabled="false"
 				button-id="new-notestutorial-button"
 				button-class="icon-add"
 				@click="newNote" />
 			<ul>
-				<strong><AppNavigationItem v-if="notes.length > 0" :key="-999" :title="'Draft'" /></strong>
-				<p style="margin-left:2.5em">
+				<strong><AppNavigationItem :key="-999" :title="'Draft'" /></strong>
+				<div v-if="notes.length > 0 && notes.filter((n) => { return !n.policeemail }).length > 0"
+					style="margin-left:2.5em">
 					<AppNavigationItem v-for="note in notes.filter((n) => { return !n.policeemail })"
 						:key="note.id"
-						:title="note.formno ? note.formno : t('notestutorial', 'New impoundment folder')"
+						:title="note.formno ? note.formno : t('notestutorial', 'New impoundment package')"
 						:class="{active: currentNoteId === note.id}"
 						@click="openNote(note)">
 						<template slot="actions">
 							<ActionButton v-if="note.id === -1"
 								icon="icon-close"
 								@click="cancelNewNote(note)">
-								{{ t('notestutorial', 'Cancel impoundment folder creation') }}
+								{{ t('notestutorial', 'Cancel impoundment package creation') }}
 							</ActionButton>
 							<ActionButton v-else
 								icon="icon-delete"
 								@click="deleteNote(note)">
-								{{ t('notestutorial', 'Delete impoundment folder') }}
+								{{ t('notestutorial', 'Delete impoundment package') }}
 							</ActionButton>
 						</template>
 					</AppNavigationItem>
-				</p>
-				<strong><AppNavigationItem v-if="notes.length > 0" :key="999" :title="'Ready'" /></strong>
-				<p style="margin-left:2.5em">
+				</div>
+				<div v-else
+					style="margin-left:2.5em">
+					<i><AppNavigationItem
+						:title="'Empty'" /></i>
+				</div>
+				<strong><AppNavigationItem :key="999" :title="'Ready'" /></strong>
+				<div v-if="notes.length > 0 && notes.filter((n) => { return n.policeemail && n.policeemail.length > 0 }).length > 0"
+					style="margin-left:2.5em">
 					<AppNavigationItem v-for="note in notes.filter((n) => { return n.policeemail && n.policeemail.length > 0 })"
 						:key="note.id"
-						:title="note.formno ? note.formno : t('notestutorial', 'New impoundment folder')"
+						:title="note.formno ? note.formno : t('notestutorial', 'New impoundment package')"
 						:class="{active: currentNoteId === note.id}" />
-				</p>
+				</div>
+				<div v-else
+					style="margin-left:2.5em">
+					<i><AppNavigationItem
+						:title="'Empty'" /></i>
+				</div>
 			</ul>
+			<hr>
+			<AppNavigationNew
+				:text="t('notestutorial', 'Settings')"
+				:disabled="false"
+				button-id=""
+				button-class="icon-settings"
+				@click="openSettings" />
+			<!--Actions>
+				<ActionButton
+					icon="icon-settings"
+					@click="openSettings">
+					Settings
+				</ActionButton>
+			</Actions-->
 		</AppNavigation>
 		<AppContent
 			:allow-swipe-navigation="false">
@@ -178,6 +204,21 @@
 				<h2>{{ t('notestutorial', 'Create a new impountment folder') }}</h2>
 			</div>
 		</AppContent>
+		<Modal v-if="updatingSettings"
+			title="'Settings'"
+			@close="closeSettings">
+			<div class="modal__content">
+				Some content
+				<div>
+					<input
+						type="button"
+						class="primary"
+						:value="t('notestutorial', 'Close')"
+						:disabled="false"
+						@click="closeSettings">
+				</div>
+			</div>
+		</Modal>
 	</div>
 </template>
 
@@ -187,6 +228,8 @@ import AppContent from '@nextcloud/vue/dist/Components/AppContent'
 import AppNavigation from '@nextcloud/vue/dist/Components/AppNavigation'
 import AppNavigationItem from '@nextcloud/vue/dist/Components/AppNavigationItem'
 import AppNavigationNew from '@nextcloud/vue/dist/Components/AppNavigationNew'
+// import ActionSeparator from '@nextcloud/vue/dist/Components/ActionSeparator'
+import Modal from '@nextcloud/vue/dist/Components/Modal'
 
 import '@nextcloud/dialogs/styles/toast.scss'
 import { generateUrl } from '@nextcloud/router'
@@ -203,17 +246,21 @@ export default {
 		AppNavigation,
 		AppNavigationItem,
 		AppNavigationNew,
+		// ActionSeparator,
+		Modal,
 		vueDropzone: vue2Dropzone,
 	},
 	data() {
 		return {
 			notes: [],
+			tempNote: null,
 			currentNoteId: null,
 			updating: false,
 			loading: true,
+			updatingSettings: false,
 			dropzoneOptions: {
 				url: '/post',
-				thumbnailWidth: 100,
+				thumbnailWidth: 20,
 				addRemoveLinks: true,
 				dictDefaultMessage: "<i class='fa-file-upload' /> Drop files to upload or use <strong><u>Upload Files</u></strong> dialog.",
 			},
@@ -262,7 +309,8 @@ export default {
 			if (this.currentNoteId === null) {
 				return null
 			}
-			return this.notes.find((note) => note.id === this.currentNoteId)
+
+			return this.tempNote
 		},
 
 		/**
@@ -285,7 +333,7 @@ export default {
 			this.notes = response.data
 		} catch (e) {
 			console.error(e)
-			showError(t('notestutorial', 'Could not fetch impoundment forms'))
+			showError(t('notestutorial', 'Could not fetch impoundment packages'))
 		}
 		this.loading = false
 	},
@@ -300,8 +348,9 @@ export default {
 				return
 			}
 			this.currentNoteId = note.id
+			this.tempNote = note
 			this.$nextTick(() => {
-				this.$refs.content.focus()
+				this.$refs.policeno.focus()
 			})
 		},
 		/**
@@ -310,9 +359,9 @@ export default {
 		 */
 		saveNote() {
 			if (this.currentNoteId === -1) {
-				this.createNote(this.currentNote)
+				this.createNote(this.tempNote)
 			} else {
-				this.updateNote(this.currentNote)
+				this.updateNote(this.tempNote)
 			}
 		},
 		/**
@@ -323,7 +372,7 @@ export default {
 		newNote() {
 			if (this.currentNoteId !== -1) {
 				this.currentNoteId = -1
-				this.notes.push({
+				this.tempNote = {
 					id: -1,
 					title: '',
 					formno: '',
@@ -333,7 +382,8 @@ export default {
 					policeno: '',
 					policeemail: '',
 					packagetype: 'vi',
-				})
+				}
+				this.notes.push(this.tempNote)
 				this.$nextTick(() => {
 					this.$refs.formno.focus()
 				})
@@ -345,6 +395,13 @@ export default {
 		cancelNewNote() {
 			this.notes.splice(this.notes.findIndex((note) => note.id === -1), 1)
 			this.currentNoteId = null
+			this.tempNote = null
+		},
+		openSettings() {
+			this.updatingSettings = true
+		},
+		closeSettings() {
+			this.updatingSettings = false
 		},
 		isNumber(evt) {
 			// if (!evt) {
@@ -362,9 +419,12 @@ export default {
 			try {
 				const response = await axios.get(generateUrl('/apps/notestutorial/notes'))
 				this.notes = response.data
+				if (this.tempNote && this.tempNote.id === -1) {
+					this.notes.push(this.tempNote)
+				}
 			} catch (e) {
 				console.error(e)
-				showError(t('notestutorial', 'Could not fetch impoundment forms'))
+				showError(t('notestutorial', 'Could not fetch impoundment packages'))
 			}
 			this.loading = false
 		},
@@ -375,13 +435,14 @@ export default {
 		async createNote(note) {
 			this.updating = true
 			try {
-				const response = await axios.post(generateUrl('/apps/notestutorial/notes'), note)
+				const response = await axios.post(generateUrl('/apps/notestutorial/notes'), this.tempNote)
 				const index = this.notes.findIndex((match) => match.id === this.currentNoteId)
 				this.$set(this.notes, index, response.data)
 				this.currentNoteId = response.data.id
+				this.tempNote = response.data
 			} catch (e) {
 				console.error(e)
-				showError(t('notestutorial', 'Could not create the impoundment form'))
+				showError(t('notestutorial', 'Could not create the impoundment package'))
 			}
 			this.updating = false
 		},
@@ -392,10 +453,10 @@ export default {
 		async updateNote(note) {
 			this.updating = true
 			try {
-				await axios.put(generateUrl(`/apps/notestutorial/notes/${note.id}`), note)
+				await axios.put(generateUrl(`/apps/notestutorial/notes/${note.id}`), this.tempNote)
 			} catch (e) {
 				console.error(e)
-				showError(t('notestutorial', 'Could not update the impoundment form'))
+				showError(t('notestutorial', 'Could not update the impoundment package'))
 			}
 			this.updating = false
 		},
@@ -413,9 +474,12 @@ export default {
 				await axios.put(generateUrl(`/apps/notestutorial/notes/${note.id}`), note)
 			} catch (e) {
 				console.error(e)
-				showError(t('notestutorial', 'Could not update the impoundment form'))
+				showError(t('notestutorial', 'Could not update the impoundmentpackage'))
 			}
 			this.updating = false
+			this.tempNote = null
+
+			await this.refreshList()
 		},
 		/**
 		 * Delete a note, remove it from the frontend and show a hint
@@ -427,11 +491,15 @@ export default {
 				this.notes.splice(this.notes.indexOf(note), 1)
 				if (this.currentNoteId === note.id) {
 					this.currentNoteId = null
+					this.tempNote = null
 				}
-				showSuccess(t('notestutorial', 'Impoundment form deleted'))
+
+				await this.refreshList()
+
+				showSuccess(t('notestutorial', 'Impoundment package deleted'))
 			} catch (e) {
 				console.error(e)
-				showError(t('notestutorial', 'Could not delete the impoundment folder'))
+				showError(t('notestutorial', 'Could not delete the impoundment package'))
 			}
 		},
 		/**
@@ -439,6 +507,7 @@ export default {
 		 */
 		async closeCurrentNote() {
 			this.currentNoteId = null
+			this.tempNote = null
 		},
 	},
 }
@@ -467,5 +536,18 @@ export default {
 	textarea {
 		flex-grow: 1;
 		width: 100%;
+	}
+
+	.modal__content {
+		width: 50vw;
+		text-align: center;
+		margin: 10vw 0;
+	}
+
+	hr {
+		margin-top: 1rem;
+		margin-bottom: 1rem;
+		border: 0;
+		border-top: 1px solid rgba(0, 0, 0, 0.1);
 	}
 </style>

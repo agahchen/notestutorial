@@ -3,7 +3,7 @@
 namespace OCA\NotesTutorial\Controller;
 
 use OCA\NotesTutorial\AppInfo\Application;
-use OCA\NotesTutorial\Service\NoteService;
+// use OCA\NotesTutorial\Service\NoteService;
 use OCA\NotesTutorial\Db\Note;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http\DataResponse;
@@ -11,6 +11,9 @@ use OCP\Files\IAppData;
 use OCP\Files\IRootFolder;
 use OCP\Files\Folder;
 use OCP\IRequest;
+use OCP\AppFramework\Db\Entity;
+use \DateTime;
+use \DateTimeZone;
 
 class NoteController extends Controller {
 	/** @var NoteService */
@@ -25,18 +28,25 @@ class NoteController extends Controller {
 	/** @var IRootFolder */
 	private $rootFolder;
 
+	private $draftFolder;
+
+	private $readyFolder;
+
 	use Errors;
 
 	public function __construct(IRequest $request,
-								NoteService $service,
+								// NoteService $service,
 								IAppData $appData,
 								IRootFolder $rootFolder,
 								$userId) {
 		parent::__construct(Application::APP_ID, $request);
-		$this->service = $service;
+		// $this->service = $service;
 		$this->userId = $userId;
 		$this->appData = $appData;
 		$this->rootFolder = $rootFolder;
+
+		$this->draftFolderPath = '/VicPD Draft/';
+		$this->readyFolderPath = '/VicPD Ready/';
 	}
 
 	/**
@@ -45,38 +55,85 @@ class NoteController extends Controller {
 	public function index(): DataResponse {
 		//return new DataResponse($this->service->findAll($this->userId));
 
+		// $a = array();
+
+		// $n = new Note();
+
+		// $n->setId(1);
+		// $n->setFormno('ABC');
+
+		// array_push($a, $n);
+
+		// $n = new Note();
+
+		// $n->setId(2);
+		// $n->setFormno('123');
+		// $n->setReady(true);
+
+		// array_push($a, $n);
+
+		// $n = new Note();
+
+		// $n->setId(2);
+		// $n->setFormno('456');
+		// $n->setReady(true);
+
+		// array_push($a, $n);
+
+		// $n = new Note();
+
+		// $n->setId(2);
+		// $n->setFormno('998');
+		// $n->setReady(true);
+
+		// array_push($a, $n);
+
+		// https://help.nextcloud.com/t/how-create-a-folder-file-in-nextcloud-with-php/85409/2
+		$userFolder = $this->rootFolder->getUserFolder($this->userId);
+
 		$a = array();
 
-		$n = new Note();
+		try {
+			if ($userFolder->nodeExists($this->draftFolderPath) === FALSE) {
+				$draftFolder = $userFolder->newFolder($this->draftFolderPath);
+			} else {
+				$draftFolder = $userFolder->get($this->draftFolderPath);
+			}
+			foreach ($draftFolder->getDirectoryListing() as $folder) {
+				$n = new Note();
+				$n->setId($folder->getId());
+				$n->setFormno($folder->getName());
 
-		$n->setId(1);
-		$n->setFormno('ABC');
+				$f = $folder->get('metadata.txt');
+				strtok($f->getContent(),':');
 
-		array_push($a, $n);
+				$n->setPoliceno(strtok(':'));
 
-		$n = new Note();
 
-		$n->setId(2);
-		$n->setFormno('123');
-		$n->setReady(true);
+				$n->setReady(false);
+				array_push($a, $n);
+			}
+		} catch (\OCP\Files\NotFoundException $e) {
+		}
 
-		array_push($a, $n);
-
-		$n = new Note();
-
-		$n->setId(2);
-		$n->setFormno('456');
-		$n->setReady(true);
-
-		array_push($a, $n);
-
-		$n = new Note();
-
-		$n->setId(2);
-		$n->setFormno('789');
-		$n->setReady(true);
-
-		array_push($a, $n);
+		try {
+			$readyFolderPath = $this->readyFolderPath;
+			if ($userFolder->nodeExists($readyFolderPath) === FALSE) {
+				$readyFolder = $userFolder->newFolder($readyFolderPath);
+			} else {
+				$readyFolder = $userFolder->get($readyFolderPath);
+			}
+			foreach ($readyFolder->getDirectoryListing() as $folder) {
+				$n = new Note();
+				// $n->setId($folder->getId());
+				$n->setId(13);
+				$n->setFormno($folder->getName());
+				$n->setPoliceno('0');
+				$n->setReady(true);
+				array_push($a, $n);
+			}
+		} catch (\OCP\Files\NotFoundException $e) {
+		}
 
 		return new DataResponse($a);
 	}
@@ -85,9 +142,26 @@ class NoteController extends Controller {
 	 * @NoAdminRequired
 	 */
 	public function show(int $id): DataResponse {
-		return $this->handleNotFound(function () use ($id) {
-			return $this->service->find($id, $this->userId);
-		});
+		// return $this->handleNotFound(function () use ($id) {
+		// 	return $this->service->find($id, $this->userId);
+		// });
+
+		// https://help.nextcloud.com/t/how-create-a-folder-file-in-nextcloud-with-php/85409/2
+		// $userFolder = $this->rootFolder->getUserFolder($this->userId);
+
+		$n = null;
+
+		try {
+			$folder = $this->rootFolder->getById($id)[0]->getParent();
+			$n = new Note();
+			$n->setId($id);
+			$n->setFormno($folder->getName());
+			$n->setPoliceno('333');;
+			$n->setReady(strpos($folder->getPath(), $this->readyFolderPath, 0));
+		} catch (\OCP\Files\NotFoundException $e) {
+		}
+
+		return new DataResponse($n);
 	}
 
 	/**
@@ -111,17 +185,17 @@ class NoteController extends Controller {
 
 		try {
 			try {
-				$folderPath = '/VicPD Draft/' . $formno;
+				$folderPath = $this->draftFolderPath . $formno;
 				if ($userFolder->nodeExists($folderPath) === FALSE) {
 					$folder = $userFolder->newFolder($folderPath);
-				} else {
-					$folder = $userFolder->get($folderPath);
-				}
 
-				if ($folder->nodeExists('metadata.txt') === FALSE) {
-					$file = $folder->newFile('metadata.txt');
+					if ($folder->nodeExists('metadata.txt') === FALSE) {
+						$file = $folder->newFile('metadata.txt');
+					} else {
+						$file = $folder->get('metadata.txt');
+					}
 				} else {
-					$file = $folder->get('metadata.txt');
+					throw new NotPermittedException ('Already exists');
 				}
 			} catch (\OCP\Files\NotFoundException $e) {
 			}
@@ -132,9 +206,14 @@ class NoteController extends Controller {
 			// you have to create this exception by yourself
 		}
 		
-		return new DataResponse($this->service->create($title, $content,
-			$this->userId,
-			$to, $formno, $agency, $policeno, $policeemail, $packagetype));
+		// return new DataResponse($this->service->create($title, $content,
+		// 	$this->userId,
+		// 	$to, $formno, $agency, $policeno, $policeemail, $packagetype));
+		$n = new Note();
+		$n->setId($folder->getId());
+		$n->setFormno($formno);
+
+		return new DataResponse($n);
 	}
 
 	/**
@@ -150,13 +229,10 @@ class NoteController extends Controller {
 			try {
 				if (empty($policeemail)) {
 					// update
-					$folderPath = '/VicPD Draft/' . $formno;
-					if ($userFolder->nodeExists($folderPath) === FALSE) {
-						$folder = $userFolder->newFolder($folderPath);
-					} else {
-						$folder = $userFolder->get($folderPath);
-					}
-
+					$folderPath = $this->draftFolderPath . $formno;
+					
+					$folder = $userFolder->get($folderPath);
+					
 					if ($folder->nodeExists('metadata.txt') === FALSE) {
 						$file = $folder->newFile('metadata.txt');
 					} else {
@@ -167,21 +243,33 @@ class NoteController extends Controller {
 					$file->putContent('pages: ' . $policeno);
 				} else {
 					// move
-					$folderPath = '/VicPD Draft/' . $formno;
-					$readyFolderPath = '/VicPD Ready/';
+					$folderPath = $this->draftFolderPath . $formno;
 
-					if ($userFolder->nodeExists($readyFolderPath) === FALSE) {
-						$readyFolderFullPath = $userFolder->newFolder($readyFolderPath)->getPath();
+					if ($userFolder->nodeExists($this->readyFolderPath) === TRUE) {
+						$readyFolderFullPath = $userFolder->get($this->readyFolderPath)->getPath();
+
+						$folder = $userFolder->get($folderPath);
+
+						// add date/time stamp
+						if ($folder->nodeExists('metadata.txt') === TRUE) {
+							$datetime = new DateTime("now", new DateTimeZone('America/Los_Angeles'));
+							$datetimestring = $datetime->format("Y-m-d\Th:i:sP");
+
+							$file = $folder->get('metadata.txt');
+
+							$content = $file->getContent();
+
+							$content = $content . "\r\n" . "datetime_stamp: " . $datetimestring;
+
+							$file->putContent($content);
+						} else {
+							throw new NotFoundException("Not found");
+						}
+	
+						$folder->move($readyFolderFullPath . '/' . $formno);
 					} else {
-						$readyFolderFullPath = $userFolder->get($readyFolderPath)->getPath();
+						throw new NotFoundException("Not found");
 					}
-
-					$folder = $userFolder->get($folderPath);
-
-					//$folder->newFile('2nd file.txt');
-
-					$folder->move($readyFolderFullPath . '/' . $formno);
-					//$readyFolder->copy($folderPath);
 				}
 			} catch (\OCP\Files\NotFoundException $e) {
 			}
@@ -189,18 +277,28 @@ class NoteController extends Controller {
 			// you have to create this exception by yourself
 		}
 
-		return $this->handleNotFound(function () use ($id, $title, $content, $to, $formno, $agency, $policeno, $policeemail, $packagetype) {
-			return $this->service->update($id, $title, $content, $this->userId,
-				$to, $formno, $agency, $policeno, $policeemail, $packagetype);
-		});
+		// return $this->handleNotFound(function () use ($id, $title, $content, $to, $formno, $agency, $policeno, $policeemail, $packagetype) {
+		// 	return $this->service->update($id, $title, $content, $this->userId,
+		// 		$to, $formno, $agency, $policeno, $policeemail, $packagetype);
+		// });
+		$n = new Note();
+		$n->setId($folder->getId());
+		$n->setFormno($formno);
+
+		return new DataResponse($n);
 	}
 
 	/**
 	 * @NoAdminRequired
 	 */
 	public function destroy(int $id): DataResponse {
-		return $this->handleNotFound(function () use ($id) {
-			return $this->service->delete($id, $this->userId);
-		});
+		// return $this->handleNotFound(function () use ($id) {
+		// 	return $this->service->delete($id, $this->userId);
+		// });
+
+		$folder = $this->rootFolder->getById($id)[0];
+		$folder->delete();
+
+		return new DataResponse(new Note());
 	}
 }
