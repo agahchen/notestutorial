@@ -132,8 +132,13 @@
 						</select>
 					</div-->
 					<vue-dropzone v-if="currentNote.id !== -1"
+						id="myDropzone"
+						ref="myDropzone"
 						:disabled="savePossible"
-						:options="dropzoneOptions" />
+						:options="dropzoneOptions"
+						@vdropzone-mounted="vdropzone_mounted"
+						@vdropzone-file-added="vdropzone_file_added"
+						@vdropzone-removed-file="vdropzone_removed_file" />
 					<div v-if="currentNote.id !== -1">
 						<label for="policeno">Total number of pages</label>
 						<input id="policeno"
@@ -200,15 +205,35 @@
 				</div>
 			</div>
 			<div v-else id="emptycontent">
-				<div class="icon-file" />
-				<h2>{{ t('notestutorial', 'Create a new impountment folder') }}</h2>
+				<!--div class="icon-file" /-->
+				<h2>{{ t('notestutorial', 'RoadSafetyBC Secure File Transfer Proof-of-Concept Application') }}</h2>
 			</div>
 		</AppContent>
 		<Modal v-if="updatingSettings"
 			title="'Settings'"
 			@close="closeSettings">
 			<div class="modal__content">
-				Some content
+				<div>
+					<label for="orgname">Organization name</label>
+					<input id="orgname"
+						v-model="orgName"
+						type="text"
+						class="form-control">
+				</div>
+				<div>
+					<label for="orgname">Draft folder</label>
+					<input id="orgname"
+						v-model="draftFolderPath"
+						type="text"
+						class="form-control">
+				</div>
+				<div>
+					<label for="orgname">Ready folder</label>
+					<input id="orgname"
+						v-model="readyFolderPath"
+						type="text"
+						class="form-control">
+				</div>
 				<div>
 					<input
 						type="button"
@@ -253,14 +278,20 @@ export default {
 	data() {
 		return {
 			notes: [],
+			orgName: '',
+			draftFolderPath: '',
+			readyFolderPath: '',
 			tempNote: null,
 			currentNoteId: null,
 			updating: false,
 			loading: true,
 			updatingSettings: false,
 			dropzoneOptions: {
-				url: '/post',
-				thumbnailWidth: 20,
+				// url: generateUrl('/apps/notestutorial/note/upload'),
+				url: '/upload',
+				// url: `/apps/notestutorial/note/${this.currentNoteId}/uploadfile`,
+				// thumbnailWidth: 20,
+				// thumbnailHeight: 20,
 				addRemoveLinks: true,
 				dictDefaultMessage: "<i class='fa-file-upload' /> Drop files to upload or use <strong><u>Upload Files</u></strong> dialog.",
 			},
@@ -343,15 +374,98 @@ export default {
 		 * Create a new note and focus the note content field automatically
 		 * @param {Object} note Note object
 		 */
-		openNote(note) {
+		async openNote(note) {
 			if (this.updating) {
 				return
 			}
+
+			if (this.currentNoteId !== note.id) {
+				// if a different note is open, close it first
+				await this.closeCurrentNote()
+			}
+
 			this.currentNoteId = note.id
 			this.tempNote = note
 			this.$nextTick(() => {
-				this.$refs.policeno.focus()
+				// TODO focus() not working
+				// this.$refs.policeno.focus()
 			})
+		},
+		async vdropzone_mounted() {
+			if (!this.currentNote) {
+				return
+			}
+
+			const response = await axios.get(generateUrl(`/apps/notestutorial/note/${this.currentNoteId}/listfiles`))
+
+			const files = response.data
+
+			this.updating = true
+
+			files.forEach(e => {
+				const file = {
+					size: e.size,
+					name: e.name,
+					type: 'application/pdf',
+				}
+				const url = '/file'
+				this.$refs.myDropzone.manuallyAddFile(file, url)
+			})
+
+			this.updating = false
+		},
+		async vdropzone_file_added(file) {
+			if (!this.currentNote || this.updating) {
+				return
+			}
+
+			this.updating = true
+			try {
+				const fileContent = await new Promise((resolve, reject) => {
+					const reader = new FileReader()
+
+					reader.onload = () => {
+						resolve(reader.result)
+					}
+
+					reader.onerror = reject
+
+					reader.readAsDataURL(file)
+				})
+				const f = {
+					name: file.name,
+					data: fileContent,
+				}
+				await axios.post(generateUrl(`/apps/notestutorial/note/${this.currentNoteId}/uploadfile`), f)
+			} catch (e) {
+				console.error(e)
+				showError(t('notestutorial', 'Could not load the impoundment package'))
+			}
+			this.updating = false
+
+			file.previewElement.addEventListener('click', function(e) {
+				// register click event handler against the newly added element
+				// alert(e)
+			})
+		},
+
+		async vdropzone_removed_file(file, error, xhr) {
+			if (!this.currentNote) {
+				return
+			}
+
+			this.updating = true
+			try {
+				const f = {
+					name: file.name,
+				}
+				await axios.post(generateUrl(`/apps/notestutorial/note/${this.currentNoteId}/deletefile`), f)
+			} catch (e) {
+				console.error(e)
+				showError(t('notestutorial', 'Could not update the impoundment package'))
+			}
+			this.updating = false
+
 		},
 		/**
 		 * Action tiggered when clicking the save button
@@ -517,8 +631,10 @@ export default {
 
 	#app-content > div {
 		margin-top: 3rem;
-		width: 100%;
-		height: 100%;
+		margin-left: 2rem;
+		margin-right: 2rem;
+		width: 90%;
+		height: 90%;
 		padding: 20px;
 		display: flex;
 		flex-direction: column;
@@ -527,6 +643,8 @@ export default {
 
 	#current-note {
 		margin-top: 3rem;
+		margin-left: 2rem;
+		margin-right: 2rem;
 	}
 
 	input[type='text'] {
@@ -539,9 +657,13 @@ export default {
 	}
 
 	.modal__content {
-		width: 50vw;
+		width: 30vw;
 		text-align: center;
 		margin: 10vw 0;
+		margin-top: 2rem;
+		margin-left: 2rem;
+		margin-bottom: 2rem;
+		margin-right: 2rem;
 	}
 
 	hr {

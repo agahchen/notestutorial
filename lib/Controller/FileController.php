@@ -1,12 +1,12 @@
 <?php
 
-namespace OCA\MyApp\Controller\MyController;
+namespace OCA\NotesTutorial\Controller;
 
 use OCP\AppFramework\Controller;
 use OCP\Files\IAppData;
 use OCP\IRequest;
 
-class MyController extends Controller {
+class FileController extends Controller {
     /** @var IAppData */
     private $appData;
 
@@ -17,7 +17,7 @@ class MyController extends Controller {
         $this->appData = $appData;
     }
 
-    public function createFolder($name) {
+    public function upload($name) {
         $this->appData.newFolder($name);
     }
 }

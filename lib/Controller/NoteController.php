@@ -5,6 +5,7 @@ namespace OCA\NotesTutorial\Controller;
 use OCA\NotesTutorial\AppInfo\Application;
 // use OCA\NotesTutorial\Service\NoteService;
 use OCA\NotesTutorial\Db\Note;
+use OCA\NotesTutorial\Db\NoteFile;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http\DataResponse;
 use OCP\Files\IAppData;
@@ -257,9 +258,11 @@ class NoteController extends Controller {
 
 							$file = $folder->get('metadata.txt');
 
-							$content = $file->getContent();
+							// $content = $file->getContent();
 
-							$content = $content . "\r\n" . "datetime_stamp: " . $datetimestring;
+							$orgname = "orgname: VicPD\r\n";
+
+							$content = $orgname . "pages: " . $policeno . "\r\n" . "datetime_stamp: " . $datetimestring;
 
 							$file->putContent($content);
 						} else {
@@ -300,5 +303,41 @@ class NoteController extends Controller {
 		$folder->delete();
 
 		return new DataResponse(new Note());
+
+	}
+
+    public function uploadfile(string $id, string $name, string $data): DataResponse {
+        $folder = $this->rootFolder->getById($id)[0];
+		$file = $folder->newFile($name);
+
+		// extract base64 encoded file content
+		strtok($data,',');
+		$base64 = strtok(',');
+		$file->putContent(base64_decode($base64));
+
+		return new DataResponse(new NoteFile($name, 0));
+    }
+
+	public function deletefile(string $id, string $name): DataResponse {
+		$folder = $this->rootFolder->getById($id)[0];
+		$file = $folder->search($name)[0];
+		$file->delete();
+
+		return new DataResponse(new NoteFile($name, 0));
+	}
+
+	public function listfiles(string $id): DataResponse {
+		$folder = $this->rootFolder->getById($id)[0];
+		
+		$a = array();
+
+		foreach ($folder->getDirectoryListing() as $f) {
+			if ($f->getName() != 'metadata.txt') {
+				$nf = new NoteFile($f->getName(), $f->getSize());
+				array_push($a, $nf);
+			}
+		}
+		
+		return new DataResponse($a);
 	}
 }
