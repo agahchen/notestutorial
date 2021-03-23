@@ -5,7 +5,7 @@
     <name>RSFT POC</name>
     <summary>App for creating RoadSafetyBC Secure File Transfer POC Impoundment Packages</summary>
     <description><![CDATA[App for creating RoadSafetyBC Secure File Transfer POC Impoundment Packages]]></description>
-    <version>18.2.26</version>
+    <version>18.2.49</version>
     <licence>agpl</licence>
     <author mail="david.agahchen@gov.bc.ca" >David Agahchen</author>
     <namespace>NotesTutorial</namespace>

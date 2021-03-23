@@ -16227,6 +16227,12 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 //
 //
 //
+//
+//
+//
+//
+//
+//
 
 
 
@@ -16318,6 +16324,14 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
      */
     savePossible: function savePossible() {
       return this.currentNote && this.currentNote.formno !== '';
+    },
+
+    /**
+     * Returns true if all three data elements are set
+     * @returns {Boolean}
+     */
+    haveValidSettings: function haveValidSettings() {
+      return this.orgName && this.draftFolderPath && this.readyFolderPath;
     }
   },
   created: function created() {
@@ -16331,36 +16345,34 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     var _this = this;
 
     return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee() {
-      var response;
       return regeneratorRuntime.wrap(function _callee$(_context) {
         while (1) {
           switch (_context.prev = _context.next) {
             case 0:
-              _context.prev = 0;
-              _context.next = 3;
-              return _nextcloud_axios__WEBPACK_IMPORTED_MODULE_9___default.a.get(Object(_nextcloud_router__WEBPACK_IMPORTED_MODULE_7__["generateUrl"])('/apps/notestutorial/notes'));
+              _context.next = 2;
+              return _this.downloadSettings();
 
-            case 3:
-              response = _context.sent;
-              _this.notes = response.data;
-              _context.next = 11;
+            case 2:
+              if (_this.haveValidSettings) {
+                _context.next = 6;
+                break;
+              }
+
+              _this.openSettings();
+
+              _context.next = 8;
               break;
 
-            case 7:
-              _context.prev = 7;
-              _context.t0 = _context["catch"](0);
-              console.error(_context.t0);
-              Object(_nextcloud_dialogs__WEBPACK_IMPORTED_MODULE_8__["showError"])(t('notestutorial', 'Could not fetch impoundment packages'));
+            case 6:
+              _context.next = 8;
+              return _this.refreshList();
 
-            case 11:
-              _this.loading = false;
-
-            case 12:
+            case 8:
             case "end":
               return _context.stop();
           }
         }
-      }, _callee, null, [[0, 7]]);
+      }, _callee);
     }))();
   },
   methods: {
@@ -16617,7 +16629,32 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       this.updatingSettings = true;
     },
     closeSettings: function closeSettings() {
-      this.updatingSettings = false;
+      var _this7 = this;
+
+      return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee6() {
+        return regeneratorRuntime.wrap(function _callee6$(_context6) {
+          while (1) {
+            switch (_context6.prev = _context6.next) {
+              case 0:
+                _context6.next = 2;
+                return _this7.uploadSettings();
+
+              case 2:
+                _this7.updatingSettings = false;
+                _context6.next = 5;
+                return _this7.refreshList();
+
+              case 5:
+                _context6.next = 7;
+                return _this7.downloadSettings();
+
+              case 7:
+              case "end":
+                return _context6.stop();
+            }
+          }
+        }, _callee6);
+      }))();
     },
     isNumber: function isNumber(evt) {
       // if (!evt) {
@@ -16632,44 +16669,49 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       }
     },
     refreshList: function refreshList() {
-      var _this7 = this;
+      var _this8 = this;
 
-      return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee6() {
+      return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee7() {
         var response;
-        return regeneratorRuntime.wrap(function _callee6$(_context6) {
+        return regeneratorRuntime.wrap(function _callee7$(_context7) {
           while (1) {
-            switch (_context6.prev = _context6.next) {
+            switch (_context7.prev = _context7.next) {
               case 0:
-                _context6.prev = 0;
-                _context6.next = 3;
-                return _nextcloud_axios__WEBPACK_IMPORTED_MODULE_9___default.a.get(Object(_nextcloud_router__WEBPACK_IMPORTED_MODULE_7__["generateUrl"])('/apps/notestutorial/notes'));
-
-              case 3:
-                response = _context6.sent;
-                _this7.notes = response.data;
-
-                if (_this7.tempNote && _this7.tempNote.id === -1) {
-                  _this7.notes.push(_this7.tempNote);
+                if (!_this8.haveValidSettings) {
+                  _context7.next = 14;
+                  break;
                 }
 
-                _context6.next = 12;
+                _context7.prev = 1;
+                _context7.next = 4;
+                return _nextcloud_axios__WEBPACK_IMPORTED_MODULE_9___default.a.get(Object(_nextcloud_router__WEBPACK_IMPORTED_MODULE_7__["generateUrl"])('/apps/notestutorial/notes'));
+
+              case 4:
+                response = _context7.sent;
+                _this8.notes = response.data;
+
+                if (_this8.tempNote && _this8.tempNote.id === -1) {
+                  _this8.notes.push(_this8.tempNote);
+                }
+
+                _context7.next = 13;
                 break;
 
-              case 8:
-                _context6.prev = 8;
-                _context6.t0 = _context6["catch"](0);
-                console.error(_context6.t0);
+              case 9:
+                _context7.prev = 9;
+                _context7.t0 = _context7["catch"](1);
+                console.error(_context7.t0);
                 Object(_nextcloud_dialogs__WEBPACK_IMPORTED_MODULE_8__["showError"])(t('notestutorial', 'Could not fetch impoundment packages'));
 
-              case 12:
-                _this7.loading = false;
-
               case 13:
+                _this8.loading = false;
+
+              case 14:
               case "end":
-                return _context6.stop();
+                return _context7.stop();
             }
           }
-        }, _callee6, null, [[0, 8]]);
+        }, _callee7, null, [[1, 9]]);
       }))();
     },
 
@@ -16678,47 +16720,47 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
      * @param {Object} note Note object
      */
     createNote: function createNote(note) {
-      var _this8 = this;
+      var _this9 = this;
 
-      return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee7() {
+      return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee8() {
         var response, index;
-        return regeneratorRuntime.wrap(function _callee7$(_context7) {
+        return regeneratorRuntime.wrap(function _callee8$(_context8) {
           while (1) {
-            switch (_context7.prev = _context7.next) {
+            switch (_context8.prev = _context8.next) {
               case 0:
-                _this8.updating = true;
-                _context7.prev = 1;
-                _context7.next = 4;
-                return _nextcloud_axios__WEBPACK_IMPORTED_MODULE_9___default.a.post(Object(_nextcloud_router__WEBPACK_IMPORTED_MODULE_7__["generateUrl"])('/apps/notestutorial/notes'), _this8.tempNote);
+                _this9.updating = true;
+                _context8.prev = 1;
+                _context8.next = 4;
+                return _nextcloud_axios__WEBPACK_IMPORTED_MODULE_9___default.a.post(Object(_nextcloud_router__WEBPACK_IMPORTED_MODULE_7__["generateUrl"])('/apps/notestutorial/notes'), _this9.tempNote);
 
               case 4:
-                response = _context7.sent;
-                index = _this8.notes.findIndex(function (match) {
-                  return match.id === _this8.currentNoteId;
+                response = _context8.sent;
+                index = _this9.notes.findIndex(function (match) {
+                  return match.id === _this9.currentNoteId;
                 });
 
-                _this8.$set(_this8.notes, index, response.data);
+                _this9.$set(_this9.notes, index, response.data);
 
-                _this8.currentNoteId = response.data.id;
-                _this8.tempNote = response.data;
-                _context7.next = 15;
+                _this9.currentNoteId = response.data.id;
+                _this9.tempNote = response.data;
+                _context8.next = 15;
                 break;
 
               case 11:
-                _context7.prev = 11;
-                _context7.t0 = _context7["catch"](1);
-                console.error(_context7.t0);
+                _context8.prev = 11;
+                _context8.t0 = _context8["catch"](1);
+                console.error(_context8.t0);
                 Object(_nextcloud_dialogs__WEBPACK_IMPORTED_MODULE_8__["showError"])(t('notestutorial', 'Could not create the impoundment package'));
 
               case 15:
-                _this8.updating = false;
+                _this9.updating = false;
 
               case 16:
               case "end":
-                return _context7.stop();
+                return _context8.stop();
             }
           }
-        }, _callee7, null, [[1, 11]]);
+        }, _callee8, null, [[1, 11]]);
       }))();
     },
 
@@ -16727,37 +16769,37 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
      * @param {Object} note Note object
      */
     updateNote: function updateNote(note) {
-      var _this9 = this;
+      var _this10 = this;
 
-      return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee8() {
-        return regeneratorRuntime.wrap(function _callee8$(_context8) {
+      return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee9() {
+        return regeneratorRuntime.wrap(function _callee9$(_context9) {
           while (1) {
-            switch (_context8.prev = _context8.next) {
+            switch (_context9.prev = _context9.next) {
               case 0:
-                _this9.updating = true;
-                _context8.prev = 1;
-                _context8.next = 4;
-                return _nextcloud_axios__WEBPACK_IMPORTED_MODULE_9___default.a.put(Object(_nextcloud_router__WEBPACK_IMPORTED_MODULE_7__["generateUrl"])("/apps/notestutorial/notes/".concat(note.id)), _this9.tempNote);
+                _this10.updating = true;
+                _context9.prev = 1;
+                _context9.next = 4;
+                return _nextcloud_axios__WEBPACK_IMPORTED_MODULE_9___default.a.put(Object(_nextcloud_router__WEBPACK_IMPORTED_MODULE_7__["generateUrl"])("/apps/notestutorial/notes/".concat(note.id)), _this10.tempNote);
 
               case 4:
-                _context8.next = 10;
+                _context9.next = 10;
                 break;
 
               case 6:
-                _context8.prev = 6;
-                _context8.t0 = _context8["catch"](1);
-                console.error(_context8.t0);
+                _context9.prev = 6;
+                _context9.t0 = _context9["catch"](1);
+                console.error(_context9.t0);
                 Object(_nextcloud_dialogs__WEBPACK_IMPORTED_MODULE_8__["showError"])(t('notestutorial', 'Could not update the impoundment package'));
 
               case 10:
-                _this9.updating = false;
+                _this10.updating = false;
 
               case 11:
               case "end":
-                return _context8.stop();
+                return _context9.stop();
             }
           }
-        }, _callee8, null, [[1, 6]]);
+        }, _callee9, null, [[1, 6]]);
       }))();
     },
 
@@ -16766,42 +16808,42 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
      * @param {Object} note Note object
      */
     moveNoteToReady: function moveNoteToReady(note) {
-      var _this10 = this;
+      var _this11 = this;
 
-      return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee9() {
-        return regeneratorRuntime.wrap(function _callee9$(_context9) {
+      return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee10() {
+        return regeneratorRuntime.wrap(function _callee10$(_context10) {
           while (1) {
-            switch (_context9.prev = _context9.next) {
+            switch (_context10.prev = _context10.next) {
               case 0:
-                _this10.updating = true; // signal the move by assigning a value to policeemail
+                _this11.updating = true; // signal the move by assigning a value to policeemail
 
                 note.policeemail = '@';
-                _context9.prev = 2;
-                _context9.next = 5;
+                _context10.prev = 2;
+                _context10.next = 5;
                 return _nextcloud_axios__WEBPACK_IMPORTED_MODULE_9___default.a.put(Object(_nextcloud_router__WEBPACK_IMPORTED_MODULE_7__["generateUrl"])("/apps/notestutorial/notes/".concat(note.id)), note);
 
               case 5:
-                _context9.next = 11;
+                _context10.next = 11;
                 break;
 
               case 7:
-                _context9.prev = 7;
-                _context9.t0 = _context9["catch"](2);
-                console.error(_context9.t0);
-                Object(_nextcloud_dialogs__WEBPACK_IMPORTED_MODULE_8__["showError"])(t('notestutorial', 'Could not update the impoundmentpackage'));
+                _context10.prev = 7;
+                _context10.t0 = _context10["catch"](2);
+                console.error(_context10.t0);
+                Object(_nextcloud_dialogs__WEBPACK_IMPORTED_MODULE_8__["showError"])(t('notestutorial', 'Could not move the impoundment package'));
 
               case 11:
-                _this10.updating = false;
-                _this10.tempNote = null;
-                _context9.next = 15;
-                return _this10.refreshList();
+                _this11.updating = false;
+                _this11.tempNote = null;
+                _context10.next = 15;
+                return _this11.refreshList();
 
               case 15:
               case "end":
-                return _context9.stop();
+                return _context10.stop();
             }
           }
-        }, _callee9, null, [[2, 7]]);
+        }, _callee10, null, [[2, 7]]);
       }))();
     },
 
@@ -16810,52 +16852,6 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
      * @param {Object} note Note object
      */
     deleteNote: function deleteNote(note) {
-      var _this11 = this;
-
-      return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee10() {
-        return regeneratorRuntime.wrap(function _callee10$(_context10) {
-          while (1) {
-            switch (_context10.prev = _context10.next) {
-              case 0:
-                _context10.prev = 0;
-                _context10.next = 3;
-                return _nextcloud_axios__WEBPACK_IMPORTED_MODULE_9___default.a.delete(Object(_nextcloud_router__WEBPACK_IMPORTED_MODULE_7__["generateUrl"])("/apps/notestutorial/notes/".concat(note.id)));
-
-              case 3:
-                _this11.notes.splice(_this11.notes.indexOf(note), 1);
-
-                if (_this11.currentNoteId === note.id) {
-                  _this11.currentNoteId = null;
-                  _this11.tempNote = null;
-                }
-
-                _context10.next = 7;
-                return _this11.refreshList();
-
-              case 7:
-                Object(_nextcloud_dialogs__WEBPACK_IMPORTED_MODULE_8__["showSuccess"])(t('notestutorial', 'Impoundment package deleted'));
-                _context10.next = 14;
-                break;
-
-              case 10:
-                _context10.prev = 10;
-                _context10.t0 = _context10["catch"](0);
-                console.error(_context10.t0);
-                Object(_nextcloud_dialogs__WEBPACK_IMPORTED_MODULE_8__["showError"])(t('notestutorial', 'Could not delete the impoundment package'));
-
-              case 14:
-              case "end":
-                return _context10.stop();
-            }
-          }
-        }, _callee10, null, [[0, 10]]);
-      }))();
-    },
-
-    /**
-     * Close current note
-     */
-    closeCurrentNote: function closeCurrentNote() {
       var _this12 = this;
 
       return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee11() {
@@ -16863,15 +16859,149 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           while (1) {
             switch (_context11.prev = _context11.next) {
               case 0:
-                _this12.currentNoteId = null;
-                _this12.tempNote = null;
+                _context11.prev = 0;
+                _context11.next = 3;
+                return _nextcloud_axios__WEBPACK_IMPORTED_MODULE_9___default.a.delete(Object(_nextcloud_router__WEBPACK_IMPORTED_MODULE_7__["generateUrl"])("/apps/notestutorial/notes/".concat(note.id)));
 
-              case 2:
+              case 3:
+                _this12.notes.splice(_this12.notes.indexOf(note), 1);
+
+                if (_this12.currentNoteId === note.id) {
+                  _this12.currentNoteId = null;
+                  _this12.tempNote = null;
+                }
+
+                _context11.next = 7;
+                return _this12.refreshList();
+
+              case 7:
+                Object(_nextcloud_dialogs__WEBPACK_IMPORTED_MODULE_8__["showSuccess"])(t('notestutorial', 'Impoundment package deleted'));
+                _context11.next = 14;
+                break;
+
+              case 10:
+                _context11.prev = 10;
+                _context11.t0 = _context11["catch"](0);
+                console.error(_context11.t0);
+                Object(_nextcloud_dialogs__WEBPACK_IMPORTED_MODULE_8__["showError"])(t('notestutorial', 'Could not delete the impoundment package'));
+
+              case 14:
               case "end":
                 return _context11.stop();
             }
           }
-        }, _callee11);
+        }, _callee11, null, [[0, 10]]);
+      }))();
+    },
+
+    /**
+     * Close current note
+     */
+    closeCurrentNote: function closeCurrentNote() {
+      var _this13 = this;
+
+      return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee12() {
+        return regeneratorRuntime.wrap(function _callee12$(_context12) {
+          while (1) {
+            switch (_context12.prev = _context12.next) {
+              case 0:
+                _this13.currentNoteId = null;
+                _this13.tempNote = null;
+
+              case 2:
+              case "end":
+                return _context12.stop();
+            }
+          }
+        }, _callee12);
+      }))();
+    },
+
+    /**
+     * Upload settings
+     */
+    uploadSettings: function uploadSettings() {
+      var _this14 = this;
+
+      return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee13() {
+        var settings;
+        return regeneratorRuntime.wrap(function _callee13$(_context13) {
+          while (1) {
+            switch (_context13.prev = _context13.next) {
+              case 0:
+                _this14.updating = true;
+                _context13.prev = 1;
+                settings = {
+                  orgName: _this14.orgName,
+                  draftFolderPath: _this14.draftFolderPath,
+                  readyFolderPath: _this14.readyFolderPath
+                };
+                _context13.next = 5;
+                return _nextcloud_axios__WEBPACK_IMPORTED_MODULE_9___default.a.post(Object(_nextcloud_router__WEBPACK_IMPORTED_MODULE_7__["generateUrl"])('/apps/notestutorial/settings/upload'), settings);
+
+              case 5:
+                _context13.next = 11;
+                break;
+
+              case 7:
+                _context13.prev = 7;
+                _context13.t0 = _context13["catch"](1);
+                console.error(_context13.t0);
+                Object(_nextcloud_dialogs__WEBPACK_IMPORTED_MODULE_8__["showError"])(t('notestutorial', 'Could not upload settings'));
+
+              case 11:
+                _this14.updating = false;
+
+              case 12:
+              case "end":
+                return _context13.stop();
+            }
+          }
+        }, _callee13, null, [[1, 7]]);
+      }))();
+    },
+
+    /**
+     * Download settings
+     */
+    downloadSettings: function downloadSettings() {
+      var _this15 = this;
+
+      return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee14() {
+        var response, settings;
+        return regeneratorRuntime.wrap(function _callee14$(_context14) {
+          while (1) {
+            switch (_context14.prev = _context14.next) {
+              case 0:
+                _this15.updating = true;
+                _context14.prev = 1;
+                _context14.next = 4;
+                return _nextcloud_axios__WEBPACK_IMPORTED_MODULE_9___default.a.get(Object(_nextcloud_router__WEBPACK_IMPORTED_MODULE_7__["generateUrl"])('/apps/notestutorial/settings/download'));
+
+              case 4:
+                response = _context14.sent;
+                settings = response.data;
+                _this15.orgName = settings.orgName;
+                _this15.draftFolderPath = settings.draftFolderPath;
+                _this15.readyFolderPath = settings.readyFolderPath;
+                _context14.next = 15;
+                break;
+
+              case 11:
+                _context14.prev = 11;
+                _context14.t0 = _context14["catch"](1);
+                console.error(_context14.t0);
+                Object(_nextcloud_dialogs__WEBPACK_IMPORTED_MODULE_8__["showError"])(t('notestutorial', 'Could not download settings'));
+
+              case 15:
+                _this15.updating = false;
+
+              case 16:
+              case "end":
+                return _context14.stop();
+            }
+          }
+        }, _callee14, null, [[1, 11]]);
       }))();
     }
   }
@@ -37494,7 +37624,7 @@ var render = function() {
               [
                 _c("AppNavigationItem", {
                   key: -999,
-                  attrs: { title: "Draft" }
+                  attrs: { title: "Draft (" + _vm.draftFolderPath + ")" }
                 })
               ],
               1
@@ -37604,7 +37734,10 @@ var render = function() {
             _c(
               "strong",
               [
-                _c("AppNavigationItem", { key: 999, attrs: { title: "Ready" } })
+                _c("AppNavigationItem", {
+                  key: 999,
+                  attrs: { title: "Ready (" + _vm.readyFolderPath + ")" }
+                })
               ],
               1
             ),
@@ -37869,9 +38002,13 @@ var render = function() {
                   })
                 ]),
                 _vm._v(" "),
+                _c("br"),
+                _vm._v(" "),
+                _c("br"),
+                _vm._v(" "),
                 _c("div", [
                   _c("label", { attrs: { for: "orgname" } }, [
-                    _vm._v("Draft folder")
+                    _vm._v("Draft folder (separated by '/')")
                   ]),
                   _vm._v(" "),
                   _c("input", {
@@ -37897,9 +38034,13 @@ var render = function() {
                   })
                 ]),
                 _vm._v(" "),
+                _c("br"),
+                _vm._v(" "),
+                _c("br"),
+                _vm._v(" "),
                 _c("div", [
                   _c("label", { attrs: { for: "orgname" } }, [
-                    _vm._v("Ready folder")
+                    _vm._v("Ready folder (separated by '/')")
                   ]),
                   _vm._v(" "),
                   _c("input", {
@@ -37925,13 +38066,17 @@ var render = function() {
                   })
                 ]),
                 _vm._v(" "),
+                _c("br"),
+                _vm._v(" "),
+                _c("br"),
+                _vm._v(" "),
                 _c("div", [
                   _c("input", {
                     staticClass: "primary",
                     attrs: {
                       type: "button",
                       value: _vm.t("notestutorial", "Close"),
-                      disabled: false
+                      disabled: !_vm.haveValidSettings
                     },
                     on: { click: _vm.closeSettings }
                   })
@@ -46756,4 +46901,4 @@ vue__WEBPACK_IMPORTED_MODULE_0__["default"].mixin({
 /***/ })
 
 /******/ });
-//# sourceMappingURL=notestutorial-main.js.map?v=603eb74b221da0ac4ccc
+//# sourceMappingURL=notestutorial-main.js.map?v=bb18e9c602f0d1caab7b
