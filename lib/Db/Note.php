@@ -17,6 +17,18 @@ class Note extends Entity implements JsonSerializable {
 	protected $policeemail;
 	protected $packagetype;
 
+	public function __construct() {
+		$this->id = -1;
+		$this->title = '';
+		$this->formno = '';
+		$this->content = '';
+		$this->to = '';
+		$this->agency = '';
+		$this->policeno = '';
+		$this->policeemail = '';
+		$this->packagetype = '';
+	}
+
 	public function jsonSerialize(): array {
 		return [
 			'id' => $this->id,
@@ -29,5 +41,25 @@ class Note extends Entity implements JsonSerializable {
 			'policeemail' => $this->policeemail,
 			'packagetype' => $this->packagetype
 		];
+	}
+
+	public function setId($id): void {
+		$this->id = $id;
+	}
+
+	public function setFormno($formno): void {
+		$this->formno = $formno;
+	}
+
+	public function setPoliceno($number): void {
+		$this->policeno = $number;
+	}
+
+	public function setReady($flag): void {
+		if ($flag) {
+			$this->policeemail = '@';
+		} else {
+			$this->policeemail = '';
+		}
 	}
 }

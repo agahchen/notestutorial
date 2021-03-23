@@ -3,11 +3,10 @@
       xsi:noNamespaceSchemaLocation="https://apps.nextcloud.com/schema/apps/info.xsd">
     <id>notestutorial</id>
     <name>RSFT POC</name>
-    <summary>App for creating RoadSafetyBC Secure File Transfer POC Impoundment Forms</summary>
-    <description><![CDATA[This is a tutorial app for taking notes to demonstrate the Nextcloud API]]></description>
-    <version>18.0.42</version>
+    <summary>App for creating RoadSafetyBC Secure File Transfer POC Impoundment Packages</summary>
+    <description><![CDATA[App for creating RoadSafetyBC Secure File Transfer POC Impoundment Packages]]></description>
+    <version>18.2.26</version>
     <licence>agpl</licence>
-    <author mail="dev@bernhard-posselt.com" >Bernhard Posselt</author>
     <author mail="david.agahchen@gov.bc.ca" >David Agahchen</author>
     <namespace>NotesTutorial</namespace>
     <category>office</category>
