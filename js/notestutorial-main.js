@@ -16233,6 +16233,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 //
 //
 //
+//
 
 
 
@@ -16626,6 +16627,13 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       this.tempNote = null;
     },
     openSettings: function openSettings() {
+      if (!this.orgName) {
+        // no org name.  suggest default values
+        this.orgName = 'Change Me';
+        this.draftFolderPath = '/RSFTPOC/Change Me Drafts/';
+        this.readyFolderPath = '/RSFTPOC/Change Me Ready for Pick-up/';
+      }
+
       this.updatingSettings = true;
     },
     closeSettings: function closeSettings() {
@@ -16655,6 +16663,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           }
         }, _callee6);
       }))();
+    },
+    onSettingsOrgnameChanged: function onSettingsOrgnameChanged() {
+      // update the drafts and ready folder paths based on the new org name
+      this.draftFolderPath = '/RSFTPOC/' + this.orgName + ' Drafts/';
+      this.readyFolderPath = '/RSFTPOC/' + this.orgName + ' Ready for Pick-up/';
     },
     isNumber: function isNumber(evt) {
       // if (!evt) {
@@ -37624,7 +37637,7 @@ var render = function() {
               [
                 _c("AppNavigationItem", {
                   key: -999,
-                  attrs: { title: "Draft (" + _vm.draftFolderPath + ")" }
+                  attrs: { title: _vm.draftFolderPath }
                 })
               ],
               1
@@ -37736,7 +37749,7 @@ var render = function() {
               [
                 _c("AppNavigationItem", {
                   key: 999,
-                  attrs: { title: "Ready (" + _vm.readyFolderPath + ")" }
+                  attrs: { title: _vm.readyFolderPath }
                 })
               ],
               1
@@ -37976,7 +37989,7 @@ var render = function() {
               _c("div", { staticClass: "modal__content" }, [
                 _c("div", [
                   _c("label", { attrs: { for: "orgname" } }, [
-                    _vm._v("Organization name")
+                    _vm._v("Organization Name")
                   ]),
                   _vm._v(" "),
                   _c("input", {
@@ -37992,6 +38005,7 @@ var render = function() {
                     attrs: { id: "orgname", type: "text" },
                     domProps: { value: _vm.orgName },
                     on: {
+                      keyup: _vm.onSettingsOrgnameChanged,
                       input: function($event) {
                         if ($event.target.composing) {
                           return
@@ -38008,7 +38022,7 @@ var render = function() {
                 _vm._v(" "),
                 _c("div", [
                   _c("label", { attrs: { for: "orgname" } }, [
-                    _vm._v("Draft folder (separated by '/')")
+                    _vm._v("Drafts Folder (sub-folders separated by '/')")
                   ]),
                   _vm._v(" "),
                   _c("input", {
@@ -38040,7 +38054,9 @@ var render = function() {
                 _vm._v(" "),
                 _c("div", [
                   _c("label", { attrs: { for: "orgname" } }, [
-                    _vm._v("Ready folder (separated by '/')")
+                    _vm._v(
+                      "Ready for Pick-up Folder (sub-folders separated by '/')"
+                    )
                   ]),
                   _vm._v(" "),
                   _c("input", {
@@ -46901,4 +46917,4 @@ vue__WEBPACK_IMPORTED_MODULE_0__["default"].mixin({
 /***/ })
 
 /******/ });
-//# sourceMappingURL=notestutorial-main.js.map?v=bb18e9c602f0d1caab7b
+//# sourceMappingURL=notestutorial-main.js.map?v=09f1dd9e200b8ab032d7

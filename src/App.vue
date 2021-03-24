@@ -8,7 +8,7 @@
 				button-class="icon-add"
 				@click="newNote" />
 			<ul>
-				<strong><AppNavigationItem :key="-999" :title="'Draft (' + draftFolderPath + ')'" /></strong>
+				<strong><AppNavigationItem :key="-999" :title="draftFolderPath" /></strong>
 				<div v-if="notes.length > 0 && notes.filter((n) => { return !n.policeemail }).length > 0"
 					style="margin-left:2.5em">
 					<AppNavigationItem v-for="note in notes.filter((n) => { return !n.policeemail })"
@@ -35,7 +35,7 @@
 					<i><AppNavigationItem
 						:title="'Empty'" /></i>
 				</div>
-				<strong><AppNavigationItem :key="999" :title="'Ready (' + readyFolderPath + ')'" /></strong>
+				<strong><AppNavigationItem :key="999" :title="readyFolderPath" /></strong>
 				<div v-if="notes.length > 0 && notes.filter((n) => { return n.policeemail && n.policeemail.length > 0 }).length > 0"
 					style="margin-left:2.5em">
 					<AppNavigationItem v-for="note in notes.filter((n) => { return n.policeemail && n.policeemail.length > 0 })"
@@ -214,16 +214,17 @@
 			@close="closeSettings">
 			<div class="modal__content">
 				<div>
-					<label for="orgname">Organization name</label>
+					<label for="orgname">Organization Name</label>
 					<input id="orgname"
 						v-model="orgName"
 						type="text"
-						class="form-control">
+						class="form-control"
+						@keyup="onSettingsOrgnameChanged">
 				</div>
 				<br>
 				<br>
 				<div>
-					<label for="orgname">Draft folder (separated by '/')</label>
+					<label for="orgname">Drafts Folder (sub-folders separated by '/')</label>
 					<input id="orgname"
 						v-model="draftFolderPath"
 						type="text"
@@ -232,7 +233,7 @@
 				<br>
 				<br>
 				<div>
-					<label for="orgname">Ready folder (separated by '/')</label>
+					<label for="orgname">Ready for Pick-up Folder (sub-folders separated by '/')</label>
 					<input id="orgname"
 						v-model="readyFolderPath"
 						type="text"
@@ -525,6 +526,12 @@ export default {
 			this.tempNote = null
 		},
 		openSettings() {
+			if (!this.orgName) {
+				// no org name.  suggest default values
+				this.orgName = 'Change Me'
+				this.draftFolderPath = '/RSFTPOC/Change Me Drafts/'
+				this.readyFolderPath = '/RSFTPOC/Change Me Ready for Pick-up/'
+			}
 			this.updatingSettings = true
 		},
 		async closeSettings() {
@@ -532,6 +539,11 @@ export default {
 			this.updatingSettings = false
 			await this.refreshList()
 			await this.downloadSettings()
+		},
+		onSettingsOrgnameChanged() {
+			// update the drafts and ready folder paths based on the new org name
+			this.draftFolderPath = '/RSFTPOC/' + this.orgName + ' Drafts/'
+			this.readyFolderPath = '/RSFTPOC/' + this.orgName + ' Ready for Pick-up/'
 		},
 		isNumber(evt) {
 			// if (!evt) {

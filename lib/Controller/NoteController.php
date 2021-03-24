@@ -347,42 +347,37 @@ class NoteController extends Controller {
 	}
 
 	protected function loadUserSettings() {
-		try {
-			$appfolder = $this->userFolder->get('RSFTPOC');
-		} catch (\OCP\Files\NotFoundException $e) {
-			$appfolder = $this->userFolder->newFolder('RSFTPOC');
-		}
+		$this->util_assertFolderCreated('/RSFTPOC/Settings');
+		$settingsfolder = $this->userFolder->get('/RSFTPOC/Settings');
 
-		if ($appfolder->nodeExists('orgName.txt') === TRUE) {
-			$file = $appfolder->get('orgName.txt');
+		if ($settingsfolder->nodeExists('orgName.txt') === TRUE) {
+			$file = $settingsfolder->get('orgName.txt');
 			$this->orgName = $file->getContent();
 		}
 
-		if ($appfolder->nodeExists('draftFolderPath.txt') === TRUE) {
-			$file = $appfolder->get('draftFolderPath.txt');
+		if ($settingsfolder->nodeExists('draftFolderPath.txt') === TRUE) {
+			$file = $settingsfolder->get('draftFolderPath.txt');
 			$this->draftFolderPath = $file->getContent();
 		}
 
-		if ($appfolder->nodeExists('readyFolderPath.txt') === TRUE) {
-			$file = $appfolder->get('readyFolderPath.txt');
+		if ($settingsfolder->nodeExists('readyFolderPath.txt') === TRUE) {
+			$file = $settingsfolder->get('readyFolderPath.txt');
 			$this->readyFolderPath = $file->getContent();
 		}
 	}
 
 	protected function saveUserSettings() {
-		try {
-			$appfolder = $this->userFolder->get('RSFTPOC');
-		} catch (\OCP\Files\NotFoundException $e) {
-			$appfolder = $this->userFolder->newFolder('RSFTPOC');
-		}
+		$this->util_assertFolderCreated('/RSFTPOC/Settings');
 
-		$file = $appfolder->newFile('orgName.txt');
+		$settingsfolder = $this->userFolder->get('/RSFTPOC/Settings');
+
+		$file = $settingsfolder->newFile('orgName.txt');
 		$file->putContent($this->orgName);
 
-		$file = $appfolder->newFile('draftFolderPath.txt');
+		$file = $settingsfolder->newFile('draftFolderPath.txt');
 		$file->putContent($this->draftFolderPath);
 
-		$file = $appfolder->newFile('readyFolderPath.txt');
+		$file = $settingsfolder->newFile('readyFolderPath.txt');
 		$file->putContent($this->readyFolderPath);
 	}
 
@@ -402,20 +397,31 @@ class NoteController extends Controller {
 		return $prefix . $s . $suffix;
 	}
 
+	protected function util_assertFolderCreated(string $path) {
+		$tok = strtok($this->util_assertBeginsEndsWithSlash($path),'/');
+
+		$fullpath = '';
+
+		while ($tok !== FALSE) {
+			$fullpath = $fullpath . '/' . $tok;
+			if ($this->userFolder->nodeExists($fullpath) == FALSE) {
+				$this->userFolder->newFolder($fullpath);
+			}
+
+			$tok = strtok('/');
+		}
+	}
+
 	public function uploadSettings(string $orgName, string $draftFolderPath, string $readyFolderPath): DataResponse {
 		$this->orgName = $orgName;
 
 		$this->draftFolderPath = $this->util_assertBeginsEndsWithSlash($draftFolderPath);
 		
-		if ($this->userFolder->nodeExists($this->draftFolderPath) == FALSE) {
-			$this->userFolder->newFolder($this->draftFolderPath);
-		}
+		$this->util_assertFolderCreated($this->draftFolderPath);
 		
 		$this->readyFolderPath = $this->util_assertBeginsEndsWithSlash($readyFolderPath);
 
-		if ($this->userFolder->nodeExists($this->readyFolderPath) == FALSE) {
-			$this->userFolder->newFolder($this->readyFolderPath);
-		}
+		$this->util_assertFolderCreated($this->readyFolderPath);
 
 		$this->saveUserSettings();
 
