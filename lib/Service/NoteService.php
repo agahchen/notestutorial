@@ -7,6 +7,8 @@ use Exception;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Db\MultipleObjectsReturnedException;
 
+use OCP\Files\Folder;
+
 use OCA\NotesTutorial\Db\Note;
 use OCA\NotesTutorial\Db\NoteMapper;
 
@@ -45,19 +47,36 @@ class NoteService {
 		}
 	}
 
-	public function create($title, $content, $userId) {
+	public function create($title, $content, $userId, $to, $formno, $agency, $policeno, $policeemail, $packagetype) {
+		//$f = Folder::newFolder('test folder');
+
+		
+
 		$note = new Note();
 		$note->setTitle($title);
+		//$note->setContent($f::getDirectoryListing()[0].getPath());
 		$note->setContent($content);
 		$note->setUserId($userId);
+		$note->setTo($to);
+		$note->setFormno($formno);
+		$note->setAgency($agency);
+		$note->setPoliceno($policeno);
+		$note->setPoliceemail($policeemail);
+		$note->setPackagetype($packagetype);
 		return $this->mapper->insert($note);
 	}
 
-	public function update($id, $title, $content, $userId) {
+	public function update($id, $title, $content, $userId, $to, $formno, $agency, $policeno, $policeemail, $packagetype) {
 		try {
 			$note = $this->mapper->find($id, $userId);
 			$note->setTitle($title);
 			$note->setContent($content);
+			$note->setTo($to);
+			$note->setFormno($formno);
+			$note->setAgency($agency);
+			$note->setPoliceno($policeno);
+			$note->setPoliceemail($policeemail);
+			$note->setPackagetype($packagetype);
 			return $this->mapper->update($note);
 		} catch (Exception $e) {
 			$this->handleException($e);
