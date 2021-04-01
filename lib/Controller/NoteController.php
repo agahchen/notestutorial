@@ -6,6 +6,7 @@ use OCA\NotesTutorial\AppInfo\Application;
 // use OCA\NotesTutorial\Service\NoteService;
 use OCA\NotesTutorial\Db\Note;
 use OCA\NotesTutorial\Db\NoteFile;
+use OCA\NotesTutorial\Db\Settings;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http\DataResponse;
 use OCP\Files\IAppData;
@@ -29,9 +30,13 @@ class NoteController extends Controller {
 	/** @var IRootFolder */
 	private $rootFolder;
 
-	private $draftFolder;
+	private $userFolder;
 
-	private $readyFolder;
+	private $orgName;
+
+	private $draftFolderPath;
+
+	private $readyFolderPath;
 
 	use Errors;
 
@@ -45,9 +50,9 @@ class NoteController extends Controller {
 		$this->userId = $userId;
 		$this->appData = $appData;
 		$this->rootFolder = $rootFolder;
+		$this->userFolder = $rootFolder->getUserFolder($userId);
 
-		$this->draftFolderPath = '/VicPD Draft/';
-		$this->readyFolderPath = '/VicPD Ready/';
+		$this->loadUserSettings();
 	}
 
 	/**
@@ -260,9 +265,9 @@ class NoteController extends Controller {
 
 							// $content = $file->getContent();
 
-							$orgname = "orgname: VicPD\r\n";
+							$orgName = "orgname: " . $this->orgName . "\r\n";
 
-							$content = $orgname . "pages: " . $policeno . "\r\n" . "datetime_stamp: " . $datetimestring;
+							$content = $orgName . "pages: " . $policeno . "\r\n" . "datetime_stamp: " . $datetimestring;
 
 							$file->putContent($content);
 						} else {
@@ -339,5 +344,94 @@ class NoteController extends Controller {
 		}
 		
 		return new DataResponse($a);
+	}
+
+	protected function loadUserSettings() {
+		$this->util_assertFolderCreated('/RSFTPOC/Settings');
+		$settingsfolder = $this->userFolder->get('/RSFTPOC/Settings');
+
+		if ($settingsfolder->nodeExists('orgName.txt') === TRUE) {
+			$file = $settingsfolder->get('orgName.txt');
+			$this->orgName = $file->getContent();
+		}
+
+		if ($settingsfolder->nodeExists('draftFolderPath.txt') === TRUE) {
+			$file = $settingsfolder->get('draftFolderPath.txt');
+			$this->draftFolderPath = $file->getContent();
+		}
+
+		if ($settingsfolder->nodeExists('readyFolderPath.txt') === TRUE) {
+			$file = $settingsfolder->get('readyFolderPath.txt');
+			$this->readyFolderPath = $file->getContent();
+		}
+	}
+
+	protected function saveUserSettings() {
+		$this->util_assertFolderCreated('/RSFTPOC/Settings');
+
+		$settingsfolder = $this->userFolder->get('/RSFTPOC/Settings');
+
+		$file = $settingsfolder->newFile('orgName.txt');
+		$file->putContent($this->orgName);
+
+		$file = $settingsfolder->newFile('draftFolderPath.txt');
+		$file->putContent($this->draftFolderPath);
+
+		$file = $settingsfolder->newFile('readyFolderPath.txt');
+		$file->putContent($this->readyFolderPath);
+	}
+
+	protected function util_assertBeginsEndsWithSlash(string $s): string {
+		if (substr($s,0,1) == '/') {
+			$prefix = '';
+		} else {
+			$prefix = '/';
+		}
+
+		if (substr($s,-1) == '/') {
+			$suffix = '';
+		} else {
+			$suffix = '/';
+		}
+
+		return $prefix . $s . $suffix;
+	}
+
+	protected function util_assertFolderCreated(string $path) {
+		$tok = strtok($this->util_assertBeginsEndsWithSlash($path),'/');
+
+		$fullpath = '';
+
+		while ($tok !== FALSE) {
+			$fullpath = $fullpath . '/' . $tok;
+			if ($this->userFolder->nodeExists($fullpath) == FALSE) {
+				$this->userFolder->newFolder($fullpath);
+			}
+
+			$tok = strtok('/');
+		}
+	}
+
+	public function uploadSettings(string $orgName, string $draftFolderPath, string $readyFolderPath): DataResponse {
+		$this->orgName = $orgName;
+
+		$this->draftFolderPath = $this->util_assertBeginsEndsWithSlash($draftFolderPath);
+		
+		$this->util_assertFolderCreated($this->draftFolderPath);
+		
+		$this->readyFolderPath = $this->util_assertBeginsEndsWithSlash($readyFolderPath);
+
+		$this->util_assertFolderCreated($this->readyFolderPath);
+
+		$this->saveUserSettings();
+
+		return new DataResponse();
+	}
+
+	public function downloadSettings(): DataResponse {
+		return new DataResponse(new Settings(
+			$this->orgName,
+			$this->draftFolderPath,
+			$this->readyFolderPath));
 	}
 }

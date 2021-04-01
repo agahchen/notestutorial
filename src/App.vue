@@ -8,7 +8,7 @@
 				button-class="icon-add"
 				@click="newNote" />
 			<ul>
-				<strong><AppNavigationItem :key="-999" :title="'Draft'" /></strong>
+				<strong><AppNavigationItem :key="-999" :title="draftFolderPath" /></strong>
 				<div v-if="notes.length > 0 && notes.filter((n) => { return !n.policeemail }).length > 0"
 					style="margin-left:2.5em">
 					<AppNavigationItem v-for="note in notes.filter((n) => { return !n.policeemail })"
@@ -35,7 +35,7 @@
 					<i><AppNavigationItem
 						:title="'Empty'" /></i>
 				</div>
-				<strong><AppNavigationItem :key="999" :title="'Ready'" /></strong>
+				<strong><AppNavigationItem :key="999" :title="readyFolderPath" /></strong>
 				<div v-if="notes.length > 0 && notes.filter((n) => { return n.policeemail && n.policeemail.length > 0 }).length > 0"
 					style="margin-left:2.5em">
 					<AppNavigationItem v-for="note in notes.filter((n) => { return n.policeemail && n.policeemail.length > 0 })"
@@ -214,32 +214,39 @@
 			@close="closeSettings">
 			<div class="modal__content">
 				<div>
-					<label for="orgname">Organization name</label>
+					<label for="orgname">Organization Name</label>
 					<input id="orgname"
 						v-model="orgName"
 						type="text"
-						class="form-control">
+						class="form-control"
+						@keyup="onSettingsOrgnameChanged">
 				</div>
+				<br>
+				<br>
 				<div>
-					<label for="orgname">Draft folder</label>
+					<label for="orgname">Drafts Folder (sub-folders separated by '/')</label>
 					<input id="orgname"
 						v-model="draftFolderPath"
 						type="text"
 						class="form-control">
 				</div>
+				<br>
+				<br>
 				<div>
-					<label for="orgname">Ready folder</label>
+					<label for="orgname">Ready for Pick-up Folder (sub-folders separated by '/')</label>
 					<input id="orgname"
 						v-model="readyFolderPath"
 						type="text"
 						class="form-control">
 				</div>
+				<br>
+				<br>
 				<div>
 					<input
 						type="button"
 						class="primary"
 						:value="t('notestutorial', 'Close')"
-						:disabled="false"
+						:disabled="!haveValidSettings"
 						@click="closeSettings">
 				</div>
 			</div>
@@ -351,6 +358,14 @@ export default {
 		savePossible() {
 			return this.currentNote && this.currentNote.formno !== ''
 		},
+
+		/**
+		 * Returns true if all three data elements are set
+		 * @returns {Boolean}
+		 */
+		haveValidSettings() {
+			return this.orgName && this.draftFolderPath && this.readyFolderPath
+		},
 	},
 	created() {
 		this.internval = setInterval(this.refreshList, 5000)
@@ -359,14 +374,13 @@ export default {
 	 * Fetch list of notes when the component is loaded
 	 */
 	async mounted() {
-		try {
-			const response = await axios.get(generateUrl('/apps/notestutorial/notes'))
-			this.notes = response.data
-		} catch (e) {
-			console.error(e)
-			showError(t('notestutorial', 'Could not fetch impoundment packages'))
+		await this.downloadSettings()
+
+		if (!this.haveValidSettings) {
+			this.openSettings()
+		} else {
+			await this.refreshList()
 		}
-		this.loading = false
 	},
 
 	methods: {
@@ -512,10 +526,24 @@ export default {
 			this.tempNote = null
 		},
 		openSettings() {
+			if (!this.orgName) {
+				// no org name.  suggest default values
+				this.orgName = 'Change Me'
+				this.draftFolderPath = '/RSFTPOC/Change Me Drafts/'
+				this.readyFolderPath = '/RSFTPOC/Change Me Ready for Pick-up/'
+			}
 			this.updatingSettings = true
 		},
-		closeSettings() {
+		async closeSettings() {
+			await this.uploadSettings()
 			this.updatingSettings = false
+			await this.refreshList()
+			await this.downloadSettings()
+		},
+		onSettingsOrgnameChanged() {
+			// update the drafts and ready folder paths based on the new org name
+			this.draftFolderPath = '/RSFTPOC/' + this.orgName + ' Drafts/'
+			this.readyFolderPath = '/RSFTPOC/' + this.orgName + ' Ready for Pick-up/'
 		},
 		isNumber(evt) {
 			// if (!evt) {
@@ -530,17 +558,19 @@ export default {
 			}
 		},
 		async refreshList() {
-			try {
-				const response = await axios.get(generateUrl('/apps/notestutorial/notes'))
-				this.notes = response.data
-				if (this.tempNote && this.tempNote.id === -1) {
-					this.notes.push(this.tempNote)
+			if (this.haveValidSettings) {
+				try {
+					const response = await axios.get(generateUrl('/apps/notestutorial/notes'))
+					this.notes = response.data
+					if (this.tempNote && this.tempNote.id === -1) {
+						this.notes.push(this.tempNote)
+					}
+				} catch (e) {
+					console.error(e)
+					showError(t('notestutorial', 'Could not fetch impoundment packages'))
 				}
-			} catch (e) {
-				console.error(e)
-				showError(t('notestutorial', 'Could not fetch impoundment packages'))
+				this.loading = false
 			}
-			this.loading = false
 		},
 		/**
 		 * Create a new note by sending the information to the server
@@ -588,7 +618,7 @@ export default {
 				await axios.put(generateUrl(`/apps/notestutorial/notes/${note.id}`), note)
 			} catch (e) {
 				console.error(e)
-				showError(t('notestutorial', 'Could not update the impoundmentpackage'))
+				showError(t('notestutorial', 'Could not move the impoundment package'))
 			}
 			this.updating = false
 			this.tempNote = null
@@ -622,6 +652,41 @@ export default {
 		async closeCurrentNote() {
 			this.currentNoteId = null
 			this.tempNote = null
+		},
+		/**
+		 * Upload settings
+		 */
+		async uploadSettings() {
+			this.updating = true
+			try {
+				const settings = {
+					orgName: this.orgName,
+					draftFolderPath: this.draftFolderPath,
+					readyFolderPath: this.readyFolderPath,
+				}
+				await axios.post(generateUrl('/apps/notestutorial/settings/upload'), settings)
+			} catch (e) {
+				console.error(e)
+				showError(t('notestutorial', 'Could not upload settings'))
+			}
+			this.updating = false
+		},
+		/**
+		 * Download settings
+		 */
+		async downloadSettings() {
+			this.updating = true
+			try {
+				const response = await axios.get(generateUrl('/apps/notestutorial/settings/download'))
+				const settings = response.data
+				this.orgName = settings.orgName
+				this.draftFolderPath = settings.draftFolderPath
+				this.readyFolderPath = settings.readyFolderPath
+			} catch (e) {
+				console.error(e)
+				showError(t('notestutorial', 'Could not download settings'))
+			}
+			this.updating = false
 		},
 	},
 }
