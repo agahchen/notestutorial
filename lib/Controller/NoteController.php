@@ -267,7 +267,13 @@ class NoteController extends Controller {
 
 							$orgName = "orgname: " . $this->orgName . "\r\n";
 
-							$content = $orgName . "pages: " . $policeno . "\r\n" . "datetime_stamp: " . $datetimestring;
+							$uniqid_true = uniqid("",true);
+							$uniqid_false = uniqid("",false);
+
+							$content = $orgName . "pages: " . $policeno 
+								. "\r\n" . "datetime_stamp: " . $datetimestring
+								. "\r\n" . "uniqid_true: " . $uniqid_true
+								. "\r\n" . "uniqid_false: " . $uniqid_false;
 
 							$file->putContent($content);
 						} else {

@@ -112,7 +112,7 @@
 						</select>
 					</div-->
 					<div>
-						<label for="formno">Prohibition # / VI #</label>
+						<label for="formno">Prohibition / Vehicle Impoundment No.</label>
 						<input id="formno"
 							v-model="currentNote.formno"
 							type="text"
@@ -507,7 +507,7 @@ export default {
 					content: '',
 					to: 'rsbc',
 					agency: 'vicpd',
-					policeno: '',
+					policeno: '1',
 					policeemail: '',
 					packagetype: 'vi',
 				}
