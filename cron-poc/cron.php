@@ -82,60 +82,103 @@ try {
 	//     - Copy $uniqid.xml to '/DPS'
 	//     - Copy $uniqid.xml to '/DPS/Control'
 	//     - Move '/Storage/DPS Ready/$uniqid' to '/Storage/DPS Sent'
-	$user = 'keycloak-a5bb4bda-427b-4efc-9d48-c102fc285b74';
-	$userFolder = \OC::$server->getUserFolder($user);
-	// $logger->debug('In cron.php. $user = "' . $user . '"');
-	// $logger->info('In cron.php. $user = "' . $user . '"');
-	// $logger->error('In cron.php. $user = "' . $user . '"');
-	$S3ReadyFolder = $userFolder->get('/S3/DPS Ready');
-	$S3ReadyFolderPath = $S3ReadyFolder->getPath();
-	$S3SentFolder = $userFolder->get('/S3/DPS Sent');
-	$S3SentFolderPath = $S3SentFolder->getPath();
-	// $newFile = $userFolder->newFile(uniqid('test-',false) . '.txt');
-	// $content = "uniqid = " . $uniqid;
-	$policeFolder = $userFolder->get('/Police Ready for Pick-up');
-	// $DPSReadyFolderName = '/temp';
-	// $content = $content . "\r\nListing '" . $policeFolder->getName() . "':\r\n\r\n";
-	// $content = $content . "S3ReadyFolderPath = " . $S3ReadyFolderPath . "\r\n";
-	foreach($policeFolder->getDirectoryListing() as $packageFolder) {
-		$packageFolderName = $packageFolder->getName();
-		$uniqid = uniqid('',false);
-		// $content = $content . "   " . $packageName . "\r\n";
-		$newFolder = $S3ReadyFolder->newFolder($uniqid);
-		$newReceivedFolder = $newFolder->newFolder('Received');
-		$newReceivedFolderPath = $newReceivedFolder->getPath();
-		$packageFolder->move($newReceivedFolderPath . '/' . $packageFolderName);
+	try {
+		$user = 'keycloak-a5bb4bda-427b-4efc-9d48-c102fc285b74';
+		$userFolder = \OC::$server->getUserFolder($user);
+		// $logger->debug('In cron.php. $user = "' . $user . '"');
+		// $logger->info('In cron.php. $user = "' . $user . '"');
+		// $logger->error('In cron.php. $user = "' . $user . '"');
+		$S3ReadyFolder = $userFolder->get('/temp-S3/DPS Ready');
+		$S3ReadyFolderPath = $S3ReadyFolder->getPath();
+		$S3SentFolder = $userFolder->get('/temp-S3/DPS Sent');
+		$S3SentFolderPath = $S3SentFolder->getPath();
+		$DPSFolder = $userFolder->get('/temp-DPS');
+		$DPSFolderPath = $DPSFolder->getPath();
+		$DPSControlFolderPath = $DPSFolderPath . '/Control';
+		// $newFile = $userFolder->newFile(uniqid('test-',false) . '.txt');
+		// $content = "uniqid = " . $uniqid;
+		$policeFolder = $userFolder->get('/Police Ready for Pick-up');
+		// $DPSReadyFolderName = '/temp';
+		// $content = $content . "\r\nListing '" . $policeFolder->getName() . "':\r\n\r\n";
+		// $content = $content . "S3ReadyFolderPath = " . $S3ReadyFolderPath . "\r\n";
+		foreach($policeFolder->getDirectoryListing() as $packageFolder) {
+			$packageFolderName = $packageFolder->getName();
+			$uniqid = uniqid('',false);
+			// $content = $content . "   " . $packageName . "\r\n";
+			$newFolder = $S3ReadyFolder->newFolder($uniqid . " (" . $packageFolderName . ")");
+			$newFolderName = $newFolder->getName();
+			$newReceivedFolder = $newFolder->newFolder('Received');
+			$newReceivedFolderPath = $newReceivedFolder->getPath();
+			$packageFolder->move($newReceivedFolderPath . '/' . $packageFolderName);
 
-		$receivedDate = '2021-04-08';
-		$orgName = 'Police';
-		$fileName = 'Vehicle ImpoundmentV2.pdf';
+			// $receivedDate = new DateTime("now", new DateTimeZone('America/Los_Angeles'));
+			// $receivedDateString = $datetime->format("Y-m-d");
+			$receivedDateString = "2021-04-08";
+			$orgName = 'Police';
 
-		$newXMLFile = $newFolder->newFile($uniqid . '.xml');
-		$content = 
-			"<ImportSession UserID=\"SERVER\kofax.service\" Password=\"PASSWORD\">\r\n" .
-			"	<Batches>\r\n" . 
-			"		<Batch Name=\"FILENAME-Matching-XML-Label\" BatchClassName=\"VIPS\" EnableAutomaticSeparationAndFormID=\"1\" RelativeImageFilePath=\".\">\r\n" .
-			"			<BatchFields>\r\n" . 
-			"				<BatchField Name=\"ImportDate\" Value=\"" . $receivedDate . "\"/>\r\n" .
-			"				<BatchField Name=\"FaxReceivedDate\" Value=\"" . $receivedDate . "\"/>\r\n" .
-			"				<BatchField Name=\"OriginatingNumber\" Value=\"" . $orgName . "\"/>\r\n" .
-			"				<BatchField Name=\"ImportID\" Value=\"" . $uniqid . "\"/>\r\n" .
-			"			</BatchFields>\r\n" .
-			"			<Pages>\r\n" .
-			"				<Page ImportFileName=\"" . $fileName . "\" OriginalFileName=\"" . $fileName . "\"/>\r\n" .
-			"			</Pages>\r\n" .
-			"		</Batch>\r\n" .
-			"	</Batches>\r\n" .
-			"</ImportSession>\r\n";
-		$newXMLFile->putContent($content);
+			$newXMLFile = $newFolder->newFile($uniqid . '.xml');
+			$content = 
+				"<ImportSession UserID=\"SERVER\kofax.service\" Password=\"PASSWORD\">\r\n" .
+				"	<Batches>\r\n" . 
+				"		<Batch Name=\"FILENAME-Matching-XML-Label\" BatchClassName=\"VIPS\" EnableAutomaticSeparationAndFormID=\"1\" RelativeImageFilePath=\".\">\r\n" .
+				"			<BatchFields>\r\n" . 
+				"				<BatchField Name=\"ImportDate\" Value=\"" . $receivedDateString . "\"/>\r\n" .
+				"				<BatchField Name=\"FaxReceivedDate\" Value=\"" . $receivedDateString . "\"/>\r\n" .
+				"				<BatchField Name=\"OriginatingNumber\" Value=\"" . $orgName . "\"/>\r\n" .
+				"				<BatchField Name=\"ImportID\" Value=\"" . $uniqid . "\"/>\r\n" .
+				"			</BatchFields>\r\n" .
+				"			<Pages>\r\n";
+
+			// $packageFolder1 = $userFolder->get("/temp-S3/DPS Ready/" . $newFolderName . "/" . "Received/" . $packageFolderName);
+			// foreach($packageFolder->getDirectoryListing() as $packageFile) {
+			// 	$packageFileName = $packageFile->getName();
+			// 	if (str_end_with(strtoupper($packageFileName),".PDF")) {
+			// 		$content = $content . 
+			// 			"				<Page ImportFileName=\"" . $packageFileName . "\" OriginalFileName=\"" . $packageFileName . "\"/>\r\n";
+			// 		// $packageFile->copy($DPSFolderPath . "/" . $packageFileName);
+			// 	}
+			// }
+
+			// temp
+			$packageFileName = "Vehicle ImpoundmentV2.pdf";
+			//$packageFolder1 = $userFolder->get("/temp-S3/DPS Ready/" . $newFolderName . "/" . "Received/" . $packageFolderName);
+			$packageFile = $packageFolder->get($packageFileName);
+			//$packageFile = $userFolder->get("/temp-S3/DPS Ready/" . $newFolderName . "/" . "Received/" . $packageFolderName . "/" . $packageFileName);
+			$content = $content . 
+				"				<Page ImportFileName=\"" . $packageFile->getName() . "\" OriginalFileName=\"" . $packageFile->getName() . "\"/>\r\n";
+
+			$content = $content . 
+				"			</Pages>\r\n" .
+				"		</Batch>\r\n" .
+				"	</Batches>\r\n" .
+				"</ImportSession>\r\n";
+			$newXMLFile->putContent($content);
+
+			$packageFile->copy($DPSFolderPath . "/" . $packageFile->getName());
+			$newXMLFile->copy($DPSFolderPath . "/" . $newXMLFile->getName());
+			$newXMLFile->copy($DPSControlFolderPath . "/" . $newXMLFile->getName());
+
+			$newFolder->move($S3SentFolderPath . "/" . $newFolderName);
+		}
+		// $content2 = $content . "\r\nFolder name = " . $policeFolder;
+		// $f1 = $userFolder->get('/Police Ready for Pick-up/F2');
+		// $content = $content . "F2 folder path = " . $f1->getPath() . "\r\n";
+		// $f1file = $f1->newFile(uniqid('test-file-',false));
+		// $f1file->putContent($content);
+		// $f1->move($DPSReadyFolderPath);
+		// $newFile->putContent($content);
+	} catch (\OCP\Files\NotFoundException $ex) {
+		// no files to work with.  do nothing.
+		$DPSFolder = $userFolder->get('/temp');
+		if ($DPSFolder->nodeExists('notfound.txt')) {
+			$f = $DPSFolder->get('notfound.txt');
+		} else {
+			$f = $DPSFolder->newFile('notfound.txt');
+		}
+		$c = $f->getContent();
+		$c = $c . uniqid("\r\New entry = ",false);
+		$f->putContent($c);
 	}
-	// $content2 = $content . "\r\nFolder name = " . $policeFolder;
-	// $f1 = $userFolder->get('/Police Ready for Pick-up/F2');
-	// $content = $content . "F2 folder path = " . $f1->getPath() . "\r\n";
-	// $f1file = $f1->newFile(uniqid('test-file-',false));
-	// $f1file->putContent($content);
-	// $f1->move($DPSReadyFolderPath);
-	// $newFile->putContent($content);
 	// RSFT POC - End
 	// ===========================================================================
 
